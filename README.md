@@ -23,9 +23,10 @@ Essential Launcher is a small launcher for Android. It provides a minimum of fun
 
 If you want to support development, please make sure:
 
-- You use Android Studio >= 2.3.3
+- You use Android Studio >= 3.0.1
 - You must not enable minify.
-- You use SDK Version >= 21.
+- You use SDK Version >= 26.
+- You specify minimum SDK Version as 21.
 - You use Java >= 8.
 - The maximum size for the APK is 30 KB.
 - You add your own `local.properties` file pointing to your android sdk: `sdk.dir=/opt/android-sdk-linux/`
