@@ -120,12 +120,12 @@ public final class Launcher extends Activity {
     /** The drawable for the launcher. */
     private Drawable icLauncher;
 
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.launcher);
-
-        if (BuildConfig.DEBUG) {
+    /**
+     * Adjust StrictMode based on environment parameters.
+     * @param isDebug pass if app is running in debug mode
+     */
+    private void adjustStrictMode(boolean isDebug) {
+        if (isDebug) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectAll()
                     .penaltyLog()
@@ -136,6 +136,15 @@ public final class Launcher extends Activity {
                     .penaltyLog()
                     .build());
         }
+    }
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.launcher);
+
+        // Adjust strict mode
+        adjustStrictMode(BuildConfig.DEBUG);
 
         /*
          * Assign components.
