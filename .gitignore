@@ -34,3 +34,7 @@ proguard/
 # IntelliJ Files
 .idea/
 *.iml
+
+# macOS
+.DS_Store
+launcher/release
