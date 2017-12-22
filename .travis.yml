@@ -6,9 +6,9 @@ android:
       - platform-tools
       - tools
 
-      - android-22
+      - android-26
       
-      - build-tools-25.0.0
+      - build-tools-27.0.2
 script:
   # By default Travis-ci executes './gradlew build connectedCheck' if no 'script:' section found.
   - ./gradlew build
