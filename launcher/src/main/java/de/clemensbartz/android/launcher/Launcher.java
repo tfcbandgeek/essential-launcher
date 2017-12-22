@@ -353,6 +353,8 @@ public final class Launcher extends Activity {
                     startActivityForResult(pickIntent, REQUEST_PICK_APPWIDGET);
 
                     break;
+                default:
+                    break;
             }
         }
 
