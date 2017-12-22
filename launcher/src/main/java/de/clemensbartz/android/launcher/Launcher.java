@@ -487,10 +487,8 @@ public final class Launcher extends Activity {
      * @param imageView the image view that was clicked
      */
     private void onDockClick(final ImageView imageView) {
-        if (imageView.getTag() != null) {
-            if (imageView.getTag() instanceof ApplicationModel) {
-                openApp((ApplicationModel) imageView.getTag());
-            }
+        if (imageView.getTag() instanceof ApplicationModel) {
+            openApp((ApplicationModel) imageView.getTag());
         }
     }
     /**
