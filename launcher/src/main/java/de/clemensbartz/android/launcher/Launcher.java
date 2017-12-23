@@ -484,6 +484,9 @@ public final class Launcher extends Activity {
         }
     }
 
+    /**
+     * Update applications.
+     */
     public void updateApplications() {
         new UpdateAsyncTask().execute();
     }
