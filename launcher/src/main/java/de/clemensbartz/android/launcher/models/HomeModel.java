@@ -363,14 +363,18 @@ public final class HomeModel {
                     // update
                     final int usage = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE));
 
-                    final ContentValues values = new ContentValues(3);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, usage + 1);
+                    if (usage < Integer.MAX_VALUE) {
+                        final ContentValues values = new ContentValues(3);
+                        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
+                        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
+                        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, usage + 1);
 
-                    db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
-                            values, SELECTION, new String[]{packageName, className});
-                    db.setTransactionSuccessful();
+                        db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
+                                values, SELECTION, new String[]{packageName, className});
+                        db.setTransactionSuccessful();
+                    } else {
+                        resetUsage(packageName, className);
+                    }
                 } else {
                     // insert
                     final ContentValues values = new ContentValues(4);
