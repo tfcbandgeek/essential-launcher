@@ -90,7 +90,7 @@ public final class DrawerListAdapter extends ArrayAdapter<ApplicationModel> {
     /**
      * View holder class.
      */
-    static class ViewHolder {
+    private static class ViewHolder {
         /** The view for the icon. */
         private ImageView icon;
         /** The view for the label. */
