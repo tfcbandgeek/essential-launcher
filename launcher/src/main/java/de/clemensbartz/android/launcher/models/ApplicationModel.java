@@ -20,20 +20,26 @@ package de.clemensbartz.android.launcher.models;
 import android.graphics.drawable.Drawable;
 
 /**
- * Model for applications.
+ * Model for applications. Out of performance reasons, this class will be excluded from
+ * CheckStyle checks.
  *
  * @author Clemens Bartz
  * @since 1.0
  */
 public final class ApplicationModel {
     /** The localized label. */
+    @SuppressWarnings("CheckStyle")
     public CharSequence label;
     /** The icon. */
+    @SuppressWarnings("CheckStyle")
     public Drawable icon;
     /** The package name. */
+    @SuppressWarnings("CheckStyle")
     public String packageName;
     /** The full class name. */
+    @SuppressWarnings("CheckStyle")
     public String className;
     /** The disabled flag. */
+    @SuppressWarnings("CheckStyle")
     public boolean disabled;
 }
