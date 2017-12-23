@@ -68,8 +68,8 @@ public final class DrawerListAdapter extends ArrayAdapter<ApplicationModel> {
             v = LayoutInflater.from(getContext()).inflate(resource, null);
 
             viewHolder = new ViewHolder();
-            viewHolder.icon = (ImageView) v.findViewById(R.id.icon);
-            viewHolder.name = (TextView) v.findViewById(R.id.name);
+            viewHolder.icon = v.findViewById(R.id.icon);
+            viewHolder.name = v.findViewById(R.id.name);
 
             v.setTag(viewHolder);
         } else {
