@@ -148,11 +148,11 @@ public final class Launcher extends Activity {
         /*
          * Assign components.
          */
-        vsLauncher = (ViewSwitcher) findViewById(R.id.vsLauncher);
-        frWidget = (FrameLayout) findViewById(R.id.frWidget);
+        vsLauncher = findViewById(R.id.vsLauncher);
+        frWidget = findViewById(R.id.frWidget);
 
-        final GridView lvApplications = (GridView) findViewById(R.id.lvApplications);
-        final ImageView ivDrawer = (ImageView) findViewById(R.id.ivDrawer);
+        final GridView lvApplications = findViewById(R.id.lvApplications);
+        final ImageView ivDrawer = findViewById(R.id.ivDrawer);
 
         dockImageViews.add((ImageView) findViewById(R.id.ivDock1));
         dockImageViews.add((ImageView) findViewById(R.id.ivDock2));
@@ -161,8 +161,8 @@ public final class Launcher extends Activity {
         dockImageViews.add((ImageView) findViewById(R.id.ivDock5));
         dockImageViews.add((ImageView) findViewById(R.id.ivDock6));
 
-        final Button btHideOverlay = (Button) findViewById(R.id.btHideOverlay);
-        final RelativeLayout overlay = (RelativeLayout) findViewById(R.id.overlay);
+        final Button btHideOverlay = findViewById(R.id.btHideOverlay);
+        final RelativeLayout overlay = findViewById(R.id.overlay);
 
         /*
          * Set handlers.
