@@ -45,7 +45,7 @@ public final class HomeModel {
     /** The total cached number of apps. */
     public static final int NUMBER_OF_APPS = 6;
     /** Constant for descending sorting. */
-    private static final String _DESC = " DESC";
+    private static final String SPACE_DESC = " DESC";
     /** Columns of ApplicationUsage. */
     private static final String[] COLUMNS = {
             ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME,
@@ -56,13 +56,13 @@ public final class HomeModel {
     /** Order by usage DESC, package name DESC, class name DESC constant. */
     private static final String ORDER_BY =
             ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE
-                    + _DESC
+                    + SPACE_DESC
             + ", "
             + ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME
-                    + _DESC
+                    + SPACE_DESC
             + ", "
             + ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME
-                    + _DESC;
+                    + SPACE_DESC;
     /** Filter for package name and class name constant. */
     private static final String SELECTION =
             ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME
@@ -107,6 +107,9 @@ public final class HomeModel {
         pm = context.getPackageManager();
     }
 
+    /**
+     * Load preference values.
+     */
     public void loadValues() {
         updateApplications();
 
@@ -114,6 +117,10 @@ public final class HomeModel {
         hideOverlay = preferences.getBoolean(KEY_HIDE_OVERLAY_ID, false);
     }
 
+    /**
+     *
+     * @return an unmodfiable list of most used applications
+     */
     public List<ApplicationModel> getMostUsedApplications() {
         return Collections.unmodifiableList(mostUsedApplications);
     }
@@ -184,6 +191,11 @@ public final class HomeModel {
         } while (!success);
     }
 
+    /**
+     * Toggle the disabled state for an application.
+     * @param packageName the package name
+     * @param className the class name
+     */
     public void toggleDisabled(final String packageName, final String className) {
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -232,6 +244,12 @@ public final class HomeModel {
         }
     }
 
+    /**
+     * Check if an application is disabled.
+     * @param packageName the package name
+     * @param className the class name
+     * @return if the application is disabled
+     */
     public boolean isDisabled(final String packageName, final String className) {
         final SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -265,6 +283,11 @@ public final class HomeModel {
         return disabled;
     }
 
+    /**
+     * Reset the counter for an application.
+     * @param packageName the package name
+     * @param className the class name
+     */
     public void resetUsage(final String packageName, final String className) {
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -314,6 +337,11 @@ public final class HomeModel {
         updateApplications();
     }
 
+    /**
+     * Increase the counter of an app.
+     * @param packageName the package name
+     * @param className the class name
+     */
     public void addUsage(final String packageName, final String className) {
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -376,24 +404,42 @@ public final class HomeModel {
                 SELECTION, new String[]{packageName, className});
     }
 
+    /**
+     *
+     * @return the id of the app widget
+     */
     public int getAppWidgetId() {
         return appWidgetId;
     }
 
+    /**
+     * Set the currently id of the app widget.
+     * @param appWidgetId the id of the app widget
+     */
     public void setAppWidgetId(final int appWidgetId) {
         preferences.edit().putInt(KEY_APPWIDGET_ID, appWidgetId).apply();
         this.appWidgetId = appWidgetId;
     }
 
+    /**
+     *
+     * @return if the overlay should be hiden
+     */
     public boolean getHideOverlay() {
         return hideOverlay;
     }
 
+    /**
+     * Hide the overlay.
+     */
     public void setHideOverlay() {
         preferences.edit().putBoolean(KEY_HIDE_OVERLAY_ID, true).apply();
         this.hideOverlay = true;
     }
 
+    /**
+     * Close the connection to the database.
+     */
     public void close() {
         if (dbHelper.getWritableDatabase().isOpen()) {
             dbHelper.getWritableDatabase().close();
