@@ -248,7 +248,7 @@ public final class Launcher extends Activity {
                         itemUninstall.setIntent(IntentUtil.uninstallAppIntent(applicationModel.packageName));
                     }
                 } catch (PackageManager.NameNotFoundException e) {
-
+                    // Do nothing here
                 }
             }
         });
