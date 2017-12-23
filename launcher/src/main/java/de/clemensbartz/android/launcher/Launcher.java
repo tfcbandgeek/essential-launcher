@@ -308,15 +308,20 @@ public final class Launcher extends Activity {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_PICK_APPWIDGET) {
                 final Bundle extras = data.getExtras();
-                final int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-                final AppWidgetProviderInfo appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId);
-                if (appWidgetInfo.configure != null) {
-                    final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
-                    intent.setComponent(appWidgetInfo.configure);
-                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-                    startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
-                } else {
-                    createWidget(data);
+
+                if (extras != null) {
+                    final int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+                    final AppWidgetProviderInfo appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId);
+
+                    if (appWidgetInfo.configure != null) {
+                        final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
+                        intent.setComponent(appWidgetInfo.configure);
+                        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+
+                        startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
+                    } else {
+                        createWidget(data);
+                    }
                 }
             } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
                 createWidget(data);
