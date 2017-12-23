@@ -29,9 +29,9 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public final class ApplicationUsageDbHelper extends SQLiteOpenHelper {
     /** The version of the database. */
-    public static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 2;
     /** The database name. */
-    public static final String DATABASE_NAME = "ApplicationUsage.db";
+    private static final String DATABASE_NAME = "ApplicationUsage.db";
 
     /**
      * Create a new helper class in a context.
