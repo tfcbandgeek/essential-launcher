@@ -173,6 +173,9 @@ public final class HomeModel {
 
                             mostUsedApplications.add(applicationModel);
                         } catch (PackageManager.NameNotFoundException e) {
+                            /* Although Android Studio claims,
+                                these values can be null at this point!
+                             */
                             if (packageName != null && className != null) {
                                 delete(packageName, className);
                             }
