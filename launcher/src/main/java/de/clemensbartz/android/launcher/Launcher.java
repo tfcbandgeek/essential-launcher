@@ -57,7 +57,6 @@ import de.clemensbartz.android.launcher.adapters.DrawerListAdapter;
 import de.clemensbartz.android.launcher.models.ApplicationModel;
 import de.clemensbartz.android.launcher.models.DockUpdateModel;
 import de.clemensbartz.android.launcher.models.HomeModel;
-import de.clemensbartz.android.launcher.tasks.CloseDatabaseAsyncTask;
 import de.clemensbartz.android.launcher.util.IntentUtil;
 
 /**
@@ -296,7 +295,7 @@ public final class Launcher extends Activity {
     protected void onPause() {
         super.onPause();
 
-        new CloseDatabaseAsyncTask().execute();
+        model.close();
     }
 
     @Override
