@@ -27,9 +27,9 @@ import android.provider.BaseColumns;
  */
 public final class ApplicationUsageModel {
     /** A comma. */
-    public static final String COMMA = ",";
+    private static final String COMMA = ",";
     /** The create SQL String. */
-    public static final String CREATE_SQL =
+    static final String CREATE_SQL =
             "CREATE TABLE IF NOT EXISTS "
             + ApplicationUsage.TABLE_NAME
             + " ("
@@ -46,7 +46,7 @@ public final class ApplicationUsageModel {
                     + ApplicationUsage.COLUMN_TYPE_DISABLED
             + ")";
     /** The drop SQL String. */
-    public static final String DROP_SQL =
+    static final String DROP_SQL =
             "DROP TABLE "
             + ApplicationUsage.TABLE_NAME;
 
@@ -66,18 +66,18 @@ public final class ApplicationUsageModel {
         /** Name of the column for package name. */
         public static final String COLUMN_NAME_PACKAGE_NAME = "packagename";
         /** Type of the column for package name. */
-        public static final String COLUMN_TYPE_PACKAGE_NAME = "TEXT";
+        private static final String COLUMN_TYPE_PACKAGE_NAME = "TEXT";
         /** Name of the column for class name. */
         public static final String COLUMN_NAME_CLASS_NAME = "classname";
         /** Type of the column for class name. */
-        public static final String COLUMN_TYPE_CLASS_NAME = "TEXT";
+        private static final String COLUMN_TYPE_CLASS_NAME = "TEXT";
         /** Name of the column for usage. */
         public static final String COLUMN_NAME_USAGE = "usage";
         /** Type of the column for usage. */
-        public static final String COLUMN_TYPE_USAGE = "INTEGER";
+        private static final String COLUMN_TYPE_USAGE = "INTEGER";
         /** Name of the column for disabled. */
         public static final String COLUMN_NAME_DISABLED = "disabled";
         /** Type of the column for disabled. */
-        public static final String COLUMN_TYPE_DISABLED = "BOOLEAN";
+        private static final String COLUMN_TYPE_DISABLED = "BOOLEAN";
     }
 }
