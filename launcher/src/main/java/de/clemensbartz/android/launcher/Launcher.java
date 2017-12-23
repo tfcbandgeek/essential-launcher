@@ -110,7 +110,7 @@ public final class Launcher extends Activity {
     /** The broadcast receiver for package changes. */
     private final BroadcastReceiver packageChangedBroadcastReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, final Intent intent) {
             updateApplications();
         }
     };
@@ -124,7 +124,7 @@ public final class Launcher extends Activity {
      * Adjust StrictMode based on environment parameters.
      * @param isDebug pass if app is running in debug mode
      */
-    private void adjustStrictMode(boolean isDebug) {
+    private void adjustStrictMode(final boolean isDebug) {
         if (isDebug) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectAll()
