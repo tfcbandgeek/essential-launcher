@@ -177,7 +177,7 @@ public final class Launcher extends Activity {
 
         ivDrawer.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
             @Override
-            public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+            public void onCreateContextMenu(final ContextMenu contextMenu, final View view, final ContextMenu.ContextMenuInfo contextMenuInfo) {
                 contextMenu.add(0, ITEM_CHOOSE_WIDGET, 0, R.string.choose_widget);
                 contextMenu.add(0, ITEM_REMOVE_WIDGET, 0, R.string.remove_widget);
             }
