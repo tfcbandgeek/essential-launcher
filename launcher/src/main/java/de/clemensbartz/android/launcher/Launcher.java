@@ -257,8 +257,6 @@ public final class Launcher extends Activity {
          */
         icLauncher = getDrawable(R.drawable.ic_launcher);
 
-        model = new HomeModel(this);
-
         // Animate the image of the drawer button.
         final RippleDrawable rd = new RippleDrawable(ColorStateList.valueOf(Color.GRAY), ivDrawer.getDrawable(), null);
         ivDrawer.setImageDrawable(rd);
@@ -272,6 +270,13 @@ public final class Launcher extends Activity {
         lvApplicationsAdapter = new DrawerListAdapter(this, R.layout.drawer_item, applicationModels);
 
         lvApplications.setAdapter(lvApplicationsAdapter);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        model = new HomeModel(this);
 
         // Go
         new LoadModelAsyncTask().execute();
@@ -292,8 +297,8 @@ public final class Launcher extends Activity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
 
         model.close();
     }
