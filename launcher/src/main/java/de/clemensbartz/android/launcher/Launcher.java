@@ -363,6 +363,13 @@ public final class Launcher extends Activity {
         appWidgetHost.stopListening();
         model.close();
 
+        // Prevent memory leaks for receiver
+        try {
+            unregisterReceiver(packageChangedBroadcastReceiver);
+        } catch (final IllegalArgumentException e) {
+            // do nothing here
+        }
+
         super.onDestroy();
     }
 
