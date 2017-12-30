@@ -360,9 +360,10 @@ public final class Launcher extends Activity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
         appWidgetHost.stopListening();
+        model.close();
+
+        super.onDestroy();
     }
 
     /**

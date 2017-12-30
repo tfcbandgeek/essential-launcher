@@ -96,6 +96,21 @@ public final class HomeModel {
     private List<ApplicationModel> mostUsedApplications =
             new ArrayList<>(NUMBER_OF_APPS);
 
+    /** Writable SQLiteDatabase. */
+    private SQLiteDatabase writableDatabase;
+    /** Readable SQLiteDatabase. */
+    private SQLiteDatabase readableDatabase;
+
+    /**
+     * Enum for different database modes.
+     */
+    private enum DatabaseModes {
+        /** Get readable database. */
+        READ,
+        /** Get writable database. */
+        WRITE
+    }
+
     /**
      * Create a new model in a context.
      * @param context the context
@@ -104,6 +119,28 @@ public final class HomeModel {
         preferences = context.getPreferences(Context.MODE_PRIVATE);
         dbHelper = new ApplicationUsageDbHelper(context);
         pm = context.getPackageManager();
+    }
+
+    /**
+     * Get a database for a mode.
+     * @param mode the mode
+     * @return the database or a readable database for unsupported modes
+     */
+    private SQLiteDatabase getDatabase(final DatabaseModes mode) {
+        switch (mode) {
+            case WRITE:
+                if (writableDatabase == null || !(writableDatabase.isOpen())) {
+                    writableDatabase = dbHelper.getWritableDatabase();
+                }
+
+                return writableDatabase;
+            default:
+                if (readableDatabase == null || !(readableDatabase.isOpen())) {
+                    readableDatabase = dbHelper.getReadableDatabase();
+                }
+
+                return readableDatabase;
+        }
     }
 
     /**
@@ -129,7 +166,7 @@ public final class HomeModel {
      * This method has to be called from an async task.
      */
     public void updateApplications() {
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        final SQLiteDatabase db = getDatabase(DatabaseModes.READ);
 
         mostUsedApplications.clear();
 
@@ -198,7 +235,7 @@ public final class HomeModel {
      * @param className the class name
      */
     public void toggleDisabled(final String packageName, final String className) {
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        final SQLiteDatabase db = getDatabase(DatabaseModes.WRITE);
 
         db.beginTransaction();
         Cursor c = null;
@@ -252,7 +289,7 @@ public final class HomeModel {
      * @return if the application is disabled
      */
     public boolean isDisabled(final String packageName, final String className) {
-        final SQLiteDatabase db = dbHelper.getReadableDatabase();
+        final SQLiteDatabase db = getDatabase(DatabaseModes.READ);
 
         boolean disabled = false;
 
@@ -290,7 +327,7 @@ public final class HomeModel {
      * @param className the class name
      */
     public void resetUsage(final String packageName, final String className) {
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        final SQLiteDatabase db = getDatabase(DatabaseModes.WRITE);
 
         db.beginTransaction();
         Cursor c = null;
@@ -344,7 +381,7 @@ public final class HomeModel {
      * @param className the class name
      */
     public void addUsage(final String packageName, final String className) {
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        final SQLiteDatabase db = getDatabase(DatabaseModes.WRITE);
 
         db.beginTransaction();
         Cursor c = null;
@@ -404,7 +441,7 @@ public final class HomeModel {
      * @param className the class name
      */
     private void delete(final String packageName, final String className) {
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        final SQLiteDatabase db = getDatabase(DatabaseModes.WRITE);
         db.delete(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                 SELECTION, new String[]{packageName, className});
     }
@@ -424,6 +461,26 @@ public final class HomeModel {
     public void setAppWidgetId(final int appWidgetId) {
         preferences.edit().putInt(KEY_APPWIDGET_ID, appWidgetId).apply();
         this.appWidgetId = appWidgetId;
+    }
+
+    /**
+     * Close the database.
+     */
+    public void close() {
+        // Close writable database
+        if (writableDatabase != null && writableDatabase.isOpen()) {
+            while (writableDatabase.inTransaction()) {
+                // wait
+            }
+
+            writableDatabase.close();
+            writableDatabase = null;
+        }
+        // Close readable database
+        if (readableDatabase != null && readableDatabase.isOpen()) {
+            readableDatabase.close();
+            readableDatabase = null;
+        }
     }
 
 }
