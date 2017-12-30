@@ -551,9 +551,8 @@ public final class HomeModel {
      */
     public void close() {
         // Close writable database
-        if (writableDatabase != null && writableDatabase.isOpen()) {
-            writableDatabase.close();
-            writableDatabase = null;
+        if (dbHelper.getWritableDatabase().isOpen()) {
+            dbHelper.getWritableDatabase().close();
         }
     }
 
