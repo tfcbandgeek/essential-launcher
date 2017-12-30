@@ -50,7 +50,22 @@ public final class ApplicationUsageDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(final SQLiteDatabase sqLiteDatabase,
                           final int oldVersion,
                           final int newVersion) {
+        if (newVersion - oldVersion != 1) {
+            recreateDatabase(sqLiteDatabase);
+        } else {
+            switch (oldVersion) {
+                default:
+                    recreateDatabase(sqLiteDatabase);
+                    break;
+            }
+        }
+    }
 
+    /**
+     * Drop database and recreate a new one.
+     * @param sqLiteDatabase the database to use
+     */
+    private void recreateDatabase(final SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(ApplicationUsageModel.DROP_SQL);
         onCreate(sqLiteDatabase);
     }
