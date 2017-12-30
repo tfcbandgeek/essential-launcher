@@ -23,13 +23,7 @@
     <string name="uninstall">Desinstalar</string>
     <string name="appinfo">Informações do aplicativo</string>
     <string name="choose_widget">Escolha o widget</string>
-    <string name="ok">OK</string>
-    <string name="drawer_short_press_description">Mostrar todos os aplicativos</string>
-    <string name="icon_long_press_description">Pressão longa: reinciar o condator or esconder aplicativo</string>
-    <string name="drawer_long_press_description">Pressão longa: mudança widget</string>
-    <string name="icon_short_press_description">Mostra a maioria dos aplicativos usados</string>
     <string name="showInDock">Mostrar em dock</string>
     <string name="unassigned_dock">Item não atribuído</string>
     <string name="open_drawer">Mostrar todos os aplicativos</string>
-    <string name="nowidgetset">Nenhum widget selecionado</string>
 </resources>

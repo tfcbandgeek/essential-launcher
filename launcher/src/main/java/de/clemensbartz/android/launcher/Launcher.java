@@ -42,11 +42,9 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.ViewSwitcher;
 
 import java.util.ArrayList;
@@ -160,20 +158,9 @@ public final class Launcher extends Activity {
         dockImageViews.add((ImageView) findViewById(R.id.ivDock5));
         dockImageViews.add((ImageView) findViewById(R.id.ivDock6));
 
-        final Button btHideOverlay = findViewById(R.id.btHideOverlay);
-        final RelativeLayout overlay = findViewById(R.id.overlay);
-
         /*
          * Set handlers.
          */
-        btHideOverlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                model.setHideOverlay();
-                overlay.setVisibility(View.GONE);
-            }
-        });
-
         ivDrawer.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
             @Override
             public void onCreateContextMenu(final ContextMenu contextMenu, final View view, final ContextMenu.ContextMenuInfo contextMenuInfo) {
@@ -636,12 +623,6 @@ public final class Launcher extends Activity {
             // Show last selected widget.
             if (result > -1) {
                 addHostView(result);
-            }
-
-            if (model.getHideOverlay()) {
-                findViewById(R.id.overlay).setVisibility(View.GONE);
-            } else {
-                findViewById(R.id.overlay).setVisibility(View.VISIBLE);
             }
         }
     }

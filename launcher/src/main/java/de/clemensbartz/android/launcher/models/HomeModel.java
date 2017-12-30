@@ -87,11 +87,10 @@ public final class HomeModel {
     /** Key for the appWidgetId property. */
     private static final String KEY_APPWIDGET_ID = "appWidgetId";
     /** Key for the hide overlay property. */
-    private static final String KEY_HIDE_OVERLAY_ID = "hideOverlay";
+    //This key has been removed as of version 1.3.
+    //private static final String KEY_HIDE_OVERLAY_ID = "hideOverlay";
     /** Value for the appWidgetId property. */
     private int appWidgetId = -1;
-    /** Value for the hide overlay property. */
-    private boolean hideOverlay = false;
 
     /** Cache for most used applications. */
     private List<ApplicationModel> mostUsedApplications =
@@ -114,7 +113,6 @@ public final class HomeModel {
         updateApplications();
 
         appWidgetId = preferences.getInt(KEY_APPWIDGET_ID, -1);
-        hideOverlay = preferences.getBoolean(KEY_HIDE_OVERLAY_ID, false);
     }
 
     /**
@@ -426,22 +424,6 @@ public final class HomeModel {
     public void setAppWidgetId(final int appWidgetId) {
         preferences.edit().putInt(KEY_APPWIDGET_ID, appWidgetId).apply();
         this.appWidgetId = appWidgetId;
-    }
-
-    /**
-     *
-     * @return if the overlay should be hiden
-     */
-    public boolean getHideOverlay() {
-        return hideOverlay;
-    }
-
-    /**
-     * Hide the overlay.
-     */
-    public void setHideOverlay() {
-        preferences.edit().putBoolean(KEY_HIDE_OVERLAY_ID, true).apply();
-        this.hideOverlay = true;
     }
 
     /**

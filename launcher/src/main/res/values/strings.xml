@@ -21,16 +21,10 @@
     <string name="open_drawer">Show all apps</string>
     <string name="uninstall">Uninstall</string>
     <string name="appinfo">Show app info</string>
-    <string name="nowidgetset">No widget set. Long press the drawer icon to select a new widget.</string>
     <string name="unassigned_dock">Unassigned dock item</string>
     <string name="resetcounter">Reset counter</string>
     <string name="showInDock">Show in dock</string>
     <string name="drawer_item_image" translatable="false">Icon</string>
-    <string name="ok">OK</string>
-    <string name="drawer_short_press_description">Show all installed apps</string>
-    <string name="drawer_long_press_description">Long press: change widget</string>
-    <string name="icon_short_press_description">Dock: shows most used apps</string>
-    <string name="icon_long_press_description">Long press: reset counter or hide app (if assigned)</string>
     <string name="remove_widget">Remove widget</string>
     <string name="choose_widget">Choose widget</string>
 </resources>
