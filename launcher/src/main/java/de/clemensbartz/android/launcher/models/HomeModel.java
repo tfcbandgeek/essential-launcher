@@ -51,11 +51,15 @@ public final class HomeModel {
             ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME,
             ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME,
             ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE,
-            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED
+            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED,
+            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY
     };
-    /** Order by usage DESC, package name DESC, class name DESC constant. */
+    /** Order by sticky DESC, usage DESC, package name DESC, class name DESC constant. */
     private static final String ORDER_BY =
-            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE
+            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY
+                    + SPACE_DESC
+            + ", "
+            + ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE
                     + SPACE_DESC
             + ", "
             + ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME
@@ -72,9 +76,11 @@ public final class HomeModel {
     /** Where statement for getting only enabled applications. */
     private static final String WHERE =
             ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED
-                    + "=0 AND "
+                    + "=0 AND ("
             + ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE
-                    + ">0";
+                    + ">0 OR "
+            + ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY
+                    + ">0)";
 
     /** Database helper. */
     private final ApplicationUsageDbHelper dbHelper;
@@ -164,10 +170,12 @@ public final class HomeModel {
                         String packageName;
                         String className;
                         boolean disabled;
+                        boolean sticky;
                         try {
                             packageName = c.getString(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME));
                             className = c.getString(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME));
                             disabled = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED)) > 0;
+                            sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
                         } catch (IllegalArgumentException e) {
                             continue;
                         }
@@ -183,6 +191,7 @@ public final class HomeModel {
                             applicationModel.packageName = packageName;
                             applicationModel.className = className;
                             applicationModel.disabled = disabled;
+                            applicationModel.sticky = sticky;
 
                             mostUsedApplications.add(applicationModel);
                         } catch (PackageManager.NameNotFoundException e) {
@@ -205,6 +214,60 @@ public final class HomeModel {
                 }
             }
         } while (!success);
+    }
+
+    /**
+     * Toggle the sticky state for an application.
+     * @param packageName the package name
+     * @param className the class name
+     */
+    public void toggleSticky(final String packageName, final String className) {
+        final SQLiteDatabase db = getDatabase();
+
+        db.beginTransaction();
+        Cursor c = null;
+        try {
+            // Get entry
+            c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
+                    new String[]{
+                            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED
+                    },
+                    SELECTION, new String[]{packageName, className},
+                    null, null, null);
+            if (c != null) {
+                if (c.getCount() > 1) {
+                    delete(packageName, className);
+                }
+                if (c.moveToFirst()) {
+                    final boolean sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
+                    // update
+                    final ContentValues values = new ContentValues(3);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, !sticky);
+
+                    db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
+                            values, SELECTION, new String[]{packageName, className});
+                    db.setTransactionSuccessful();
+                } else {
+                    // insert
+                    final ContentValues values = new ContentValues(4);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, false);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, true);
+
+                    db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
+                    db.setTransactionSuccessful();
+                }
+            }
+        } finally {
+            db.endTransaction();
+            if (c != null) {
+                c.close();
+            }
+        }
     }
 
     /**
@@ -247,6 +310,7 @@ public final class HomeModel {
                     values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
                     values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
                     values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, true);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, false);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
@@ -258,6 +322,45 @@ public final class HomeModel {
                 c.close();
             }
         }
+    }
+
+    /**
+     * Check if an application is sticky.
+     * @param packageName the package name
+     * @param className the class name
+     * @return if the application is sticky
+     */
+    public boolean isSticky(final String packageName, final String className) {
+        final SQLiteDatabase db = getDatabase();
+
+        boolean sticky = false;
+
+        db.beginTransaction();
+        Cursor c = null;
+        try {
+            // Get entry
+            c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
+                    new String[]{
+                            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY
+                    },
+                    SELECTION, new String[]{packageName, className},
+                    null, null, null);
+            if (c != null) {
+                if (c.getCount() > 1) {
+                    delete(packageName, className);
+                }
+                if (c.moveToFirst()) {
+                    sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
+                }
+            }
+        } finally {
+            db.endTransaction();
+            if (c != null) {
+                c.close();
+            }
+        }
+
+        return sticky;
     }
 
     /**
@@ -338,6 +441,7 @@ public final class HomeModel {
                     values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
                     values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
                     values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, false);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, false);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
@@ -398,6 +502,7 @@ public final class HomeModel {
                     values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
                     values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 1);
                     values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, false);
+                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, false);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();

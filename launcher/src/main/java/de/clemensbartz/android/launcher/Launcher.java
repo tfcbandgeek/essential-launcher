@@ -86,6 +86,8 @@ public final class Launcher extends Activity {
     private static final int ITEM_REMOVE_WIDGET = 5;
     /** Request code for choosing widget. */
     private static final int ITEM_CHOOSE_WIDGET = 6;
+    /** Request code for toggle sticky app. */
+    private static final int ITEM_TOGGLE_STICKY = 7;
 
     /** The view switcher of the launcher. */
     private ViewSwitcher vsLauncher;
@@ -187,6 +189,10 @@ public final class Launcher extends Activity {
                             final MenuItem toggleDisabledItem = contextMenu.add(0, ITEM_TOGGLE_DISABLED, 0, R.string.showInDock);
                             toggleDisabledItem.setCheckable(true);
                             toggleDisabledItem.setChecked(!model.disabled);
+
+                            final MenuItem toggleStickyItem = contextMenu.add(0, ITEM_TOGGLE_STICKY, 0, R.string.showInDockSticky);
+                            toggleStickyItem.setCheckable(true);
+                            toggleStickyItem.setChecked(model.sticky);
                         }
                     }
                 }
@@ -225,6 +231,10 @@ public final class Launcher extends Activity {
                 final MenuItem toggleDisabledItem = contextMenu.add(0, ITEM_TOGGLE_DISABLED, 0, R.string.showInDock);
                 toggleDisabledItem.setCheckable(true);
                 toggleDisabledItem.setChecked(!applicationModel.disabled);
+
+                final MenuItem toggleStickyItem = contextMenu.add(0, ITEM_TOGGLE_STICKY, 0, R.string.showInDockSticky);
+                toggleStickyItem.setCheckable(true);
+                toggleStickyItem.setChecked(applicationModel.sticky);
 
                 // Check for system apps
                 try {
@@ -322,6 +332,9 @@ public final class Launcher extends Activity {
                     break;
                 case ITEM_TOGGLE_DISABLED:
                     new ToggleDockAsyncTask().execute(contextMenuApplicationModel);
+                    break;
+                case ITEM_TOGGLE_STICKY:
+                    new ToggleStickyAsyncTask().execute(contextMenuApplicationModel);
                     break;
                 default:
                     break;
@@ -542,6 +555,26 @@ public final class Launcher extends Activity {
     }
 
     /**
+     * Toggle sticky visibility for an application.
+     */
+    private class ToggleStickyAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
+        @Override
+        protected Integer doInBackground(final ApplicationModel... paramses) {
+            for (ApplicationModel applicationModel : paramses) {
+                model.toggleSticky(applicationModel.packageName, applicationModel.className);
+            }
+
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(final Integer result) {
+            new LoadMostUsedAppsAsyncTask().execute();
+            hasSwitchedTo(HOME_ID);
+        }
+    }
+
+    /**
      * Toggle dock visibility for an application.
      */
     private class ToggleDockAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
@@ -662,12 +695,14 @@ public final class Launcher extends Activity {
             for (ResolveInfo resolveInfo : resolveInfos) {
                 i = i + 1;
                 final boolean disabled = model.isDisabled(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
+                final boolean sticky = model.isSticky(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                 final ApplicationModel applicationModel = new ApplicationModel();
                 applicationModel.label = resolveInfo.loadLabel(pm);
                 applicationModel.icon = resolveInfo.loadIcon(pm);
                 applicationModel.packageName = resolveInfo.activityInfo.packageName;
                 applicationModel.className = resolveInfo.activityInfo.name;
                 applicationModel.disabled = disabled;
+                applicationModel.sticky = sticky;
                 applicationModels.add(applicationModel);
                 if (i % REFRESH_NUMBER == 0) {
                     publishProgress();
