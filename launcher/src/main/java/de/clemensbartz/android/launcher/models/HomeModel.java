@@ -230,7 +230,7 @@ public final class HomeModel {
             // Get entry
             c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                     new String[]{
-                            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED
+                            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY
                     },
                     SELECTION, new String[]{packageName, className},
                     null, null, null);
