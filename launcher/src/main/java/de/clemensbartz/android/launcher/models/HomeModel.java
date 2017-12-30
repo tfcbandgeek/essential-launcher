@@ -426,12 +426,4 @@ public final class HomeModel {
         this.appWidgetId = appWidgetId;
     }
 
-    /**
-     * Close the connection to the database.
-     */
-    public void close() {
-        if (dbHelper.getWritableDatabase().isOpen()) {
-            dbHelper.getWritableDatabase().close();
-        }
-    }
 }
