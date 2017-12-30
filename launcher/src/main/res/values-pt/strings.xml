@@ -26,4 +26,5 @@
     <string name="showInDock">Mostrar em dock</string>
     <string name="unassigned_dock">Item não atribuído</string>
     <string name="open_drawer">Mostrar todos os aplicativos</string>
+    <string name="showInDockSticky">Pin para dock</string>
 </resources>

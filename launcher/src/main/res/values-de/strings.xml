@@ -26,4 +26,5 @@
   <string name="showInDock">Im Dock anzeigen</string>
   <string name="remove_widget">Widget entfernen</string>
   <string name="choose_widget">Widget wählen</string>
+    <string name="showInDockSticky">Vorn anheften</string>
 </resources>
