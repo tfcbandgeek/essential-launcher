@@ -297,13 +297,6 @@ public final class Launcher extends Activity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-
-        model.close();
-    }
-
-    @Override
     protected void onActivityResult(
             final int requestCode,
             final int resultCode,
