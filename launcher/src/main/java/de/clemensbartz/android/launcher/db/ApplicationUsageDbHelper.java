@@ -48,8 +48,8 @@ public final class ApplicationUsageDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(final SQLiteDatabase sqLiteDatabase,
-                          final int i,
-                          final int i1) {
+                          final int oldVersion,
+                          final int newVersion) {
 
         sqLiteDatabase.execSQL(ApplicationUsageModel.DROP_SQL);
         onCreate(sqLiteDatabase);
