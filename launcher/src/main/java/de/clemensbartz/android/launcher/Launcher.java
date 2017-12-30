@@ -374,7 +374,7 @@ public final class Launcher extends Activity {
     @Override
     protected void onDestroy() {
         appWidgetHost.stopListening();
-        //model.close();
+        model.close();
 
         // Prevent memory leaks for receiver
         try {
