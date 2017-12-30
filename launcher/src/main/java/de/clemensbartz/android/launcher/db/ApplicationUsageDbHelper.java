@@ -29,7 +29,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public final class ApplicationUsageDbHelper extends SQLiteOpenHelper {
     /** The version of the database. */
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     /** The database name. */
     private static final String DATABASE_NAME = "ApplicationUsage.db";
 
@@ -54,6 +54,13 @@ public final class ApplicationUsageDbHelper extends SQLiteOpenHelper {
             recreateDatabase(sqLiteDatabase);
         } else {
             switch (oldVersion) {
+                case 2:
+                    sqLiteDatabase.beginTransaction();
+
+                    sqLiteDatabase.execSQL(ApplicationUsageModel.ALTER_TABLE_2);
+                    sqLiteDatabase.execSQL(ApplicationUsageModel.UPDATE_CONTENT_2);
+
+                    sqLiteDatabase.endTransaction();
                 default:
                     recreateDatabase(sqLiteDatabase);
                     break;

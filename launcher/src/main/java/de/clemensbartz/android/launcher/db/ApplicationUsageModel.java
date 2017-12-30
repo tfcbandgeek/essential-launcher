@@ -44,7 +44,22 @@ public final class ApplicationUsageModel {
                     + COMMA + " "
                     + ApplicationUsage.COLUMN_NAME_DISABLED + " "
                     + ApplicationUsage.COLUMN_TYPE_DISABLED
+                    + COMMA + " "
+                    + ApplicationUsage.COLUMN_NAME_STICKY + " "
+                    + ApplicationUsage.COLUMN_TYPE_STICKY
             + ")";
+    /** The DDM update for Version 2 of the database. */
+    static final String ALTER_TABLE_2 = "ALTER TABLE "
+                    + ApplicationUsage.TABLE_NAME
+                    + " ADD COLUMN "
+                    + ApplicationUsage.COLUMN_NAME_STICKY + " "
+                    + ApplicationUsage.COLUMN_TYPE_STICKY;
+    /** The content update for Version 2 of the database. */
+    static final String UPDATE_CONTENT_2 = "UPDATE "
+                    + ApplicationUsage.TABLE_NAME
+                    + " SET "
+                    + ApplicationUsage.COLUMN_NAME_STICKY
+                    + "=0";
     /** The drop SQL String. */
     static final String DROP_SQL =
             "DROP TABLE "
@@ -79,5 +94,9 @@ public final class ApplicationUsageModel {
         public static final String COLUMN_NAME_DISABLED = "disabled";
         /** Type of the column for disabled. */
         private static final String COLUMN_TYPE_DISABLED = "BOOLEAN";
+        /** Name of the column for sticky. */
+        public static final String COLUMN_NAME_STICKY = "sticky";
+        /** Type of the column for sticky. */
+        public static final String COLUMN_TYPE_STICKY = "BOOLEAN";
     }
 }
