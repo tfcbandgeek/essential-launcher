@@ -24,8 +24,8 @@ android {
         applicationId "de.clemensbartz.android.launcher"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 9
-        versionName "1.2.2"
+        versionCode 10
+        versionName "1.3"
     }
     buildTypes {
         release {
