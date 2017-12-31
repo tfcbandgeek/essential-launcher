@@ -26,6 +26,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +84,7 @@ public final class HomeModel {
                     + ">0)";
 
     /** Database helper. */
-    private final ApplicationUsageDbHelper dbHelper;
+    private final SQLiteOpenHelper dbHelper;
     /** Package manager. */
     private final PackageManager pm;
 
@@ -111,7 +112,7 @@ public final class HomeModel {
      */
     public HomeModel(final Activity context) {
         preferences = context.getPreferences(Context.MODE_PRIVATE);
-        dbHelper = new ApplicationUsageDbHelper(context);
+        dbHelper = ApplicationUsageDbHelper.getInstance(context);
         pm = context.getPackageManager();
     }
 
@@ -550,10 +551,7 @@ public final class HomeModel {
      * Close the database.
      */
     public void close() {
-        // Close writable database
-        if (dbHelper.getWritableDatabase().isOpen()) {
-            dbHelper.getWritableDatabase().close();
-        }
+        dbHelper.close();
     }
 
 }

@@ -17,6 +17,7 @@
 
 package de.clemensbartz.android.launcher.db;
 
+import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -28,16 +29,42 @@ import android.database.sqlite.SQLiteOpenHelper;
  * @since 1.0
  */
 public final class ApplicationUsageDbHelper extends SQLiteOpenHelper {
+    /** The instance for static lookup. */
+    private static ApplicationUsageDbHelper instance;
+    /** The instance for application context. */
+    private static Context applicationContext;
     /** The version of the database. */
     private static final int DATABASE_VERSION = 3;
     /** The database name. */
     private static final String DATABASE_NAME = "ApplicationUsage.db";
 
     /**
+     *
+     * @return the application context
+     */
+    public static Context getApplicationContext() {
+        return applicationContext;
+    }
+
+    /**
+     *
+     * @param context initialize with a context
+     * @return the current instance
+     */
+    public static SQLiteOpenHelper getInstance(final Context context) {
+        if (instance == null) {
+            applicationContext = context.getApplicationContext();
+            instance = new ApplicationUsageDbHelper(applicationContext);
+        }
+
+        return instance;
+    }
+
+    /**
      * Create a new helper class in a context.
      * @param context the context
      */
-    public ApplicationUsageDbHelper(final Context context) {
+    private ApplicationUsageDbHelper(final Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
