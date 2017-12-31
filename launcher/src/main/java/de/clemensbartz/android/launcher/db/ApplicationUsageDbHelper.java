@@ -81,12 +81,9 @@ public final class ApplicationUsageDbHelper extends SQLiteOpenHelper {
         } else {
             switch (oldVersion) {
                 case 2:
-                    sqLiteDatabase.beginTransaction();
-
                     sqLiteDatabase.execSQL(ApplicationUsageModel.ALTER_TABLE_2);
                     sqLiteDatabase.execSQL(ApplicationUsageModel.UPDATE_CONTENT_2);
-
-                    sqLiteDatabase.endTransaction();
+                    break;
                 default:
                     recreateDatabase(sqLiteDatabase);
                     break;
