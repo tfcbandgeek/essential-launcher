@@ -121,10 +121,9 @@ public final class Launcher extends Activity {
 
     /**
      * Adjust StrictMode based on environment parameters.
-     * @param isDebug pass if app is running in debug mode
      */
-    private void adjustStrictMode(final boolean isDebug) {
-        if (isDebug) {
+    private void adjustStrictMode() {
+        if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectAll()
                     .penaltyLog()
@@ -142,7 +141,7 @@ public final class Launcher extends Activity {
         setContentView(R.layout.launcher);
 
         // Adjust strict mode
-        adjustStrictMode(BuildConfig.DEBUG);
+        adjustStrictMode();
 
         /*
          * Assign components.
