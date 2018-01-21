@@ -40,24 +40,9 @@ public final class IntentUtil {
      * @return the intent to open the application info screen.
      */
     public static Intent newAppDetailsIntent(final String packageName) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            final Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setData(Uri.parse("package:" + packageName));
-            return intent;
-        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.FROYO) {
-            final Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setClassName("com.android.settings",
-                    "com.android.settings.InstalledAppDetails");
-            intent.putExtra("pkg", packageName);
-            return intent;
-        }
-        final Intent intent = new Intent(Intent.ACTION_VIEW);
+        final Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setClassName("com.android.settings",
-                "com.android.settings.InstalledAppDetails");
-        intent.putExtra("com.android.settings.ApplicationPkgName", packageName);
+        intent.setData(Uri.parse("package:" + packageName));
         return intent;
     }
 
