@@ -75,7 +75,7 @@
                        android:layout_height="55dp"
                        android:id="@+id/ivDrawer"
                        android:src="@drawable/ic_view_module_white_48dp"
-                       android:layout_weight="1" android:onClick="openDrawer"
+                       android:layout_weight="1"
                        android:focusable="true" android:clickable="true" android:padding="5dp"
                        android:paddingEnd="5dp" android:paddingStart="5dp"
                        android:contentDescription="@string/open_drawer"

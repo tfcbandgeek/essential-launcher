@@ -163,39 +163,13 @@ public final class Launcher extends Activity {
          * Set handlers.
          */
         if (hasAppWidgets(this)) {
-            ivDrawer.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                @Override
-                public void onCreateContextMenu(final ContextMenu contextMenu, final View view, final ContextMenu.ContextMenuInfo contextMenuInfo) {
-                    contextMenu.add(0, ITEM_CHOOSE_WIDGET, 0, R.string.choose_widget);
-                    contextMenu.add(0, ITEM_REMOVE_WIDGET, 0, R.string.remove_widget);
-                }
-            });
+            ivDrawer.setOnCreateContextMenuListener(new DrawerContextMenuListener());
         }
 
+        ivDrawer.setOnClickListener(new DrawerOnClickListener());
+
         for (final ImageView imageView : dockImageViews) {
-            imageView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                @Override
-                public void onCreateContextMenu(final ContextMenu contextMenu, final View view, final ContextMenu.ContextMenuInfo contextMenuInfo) {
-                    if (view instanceof ImageView) {
-                        final ImageView contextImageView = (ImageView) view;
-
-                        if (contextImageView.getTag() instanceof ApplicationModel) {
-                            final ApplicationModel model = (ApplicationModel) contextImageView.getTag();
-                            contextMenuApplicationModel = model;
-
-                            contextMenu.add(0, ITEM_RESET, 0, R.string.resetcounter);
-
-                            final MenuItem toggleDisabledItem = contextMenu.add(0, ITEM_TOGGLE_DISABLED, 0, R.string.showInDock);
-                            toggleDisabledItem.setCheckable(true);
-                            toggleDisabledItem.setChecked(!model.disabled);
-
-                            final MenuItem toggleStickyItem = contextMenu.add(0, ITEM_TOGGLE_STICKY, 0, R.string.showInDockSticky);
-                            toggleStickyItem.setCheckable(true);
-                            toggleStickyItem.setChecked(model.sticky);
-                        }
-                    }
-                }
-            });
+            imageView.setOnCreateContextMenuListener(new DockContextMenuListener());
         }
 
         lvApplications.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -210,43 +184,7 @@ public final class Launcher extends Activity {
             }
         });
         registerForContextMenu(lvApplications);
-        lvApplications.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-            @Override
-            public void onCreateContextMenu(
-                    final ContextMenu contextMenu,
-                    final View view,
-                    final ContextMenu.ContextMenuInfo contextMenuInfo) {
-
-                final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) contextMenuInfo;
-                final ApplicationModel applicationModel = applicationModels.get(info.position);
-                contextMenuApplicationModel = applicationModel;
-
-                contextMenu.setHeaderTitle(applicationModel.label);
-                final MenuItem itemAppInfo = contextMenu.add(0, ITEM_APPINFO, 0, R.string.appinfo);
-                itemAppInfo.setIntent(IntentUtil.newAppDetailsIntent(applicationModel.packageName));
-
-                contextMenu.add(0, ITEM_RESET, 0, R.string.resetcounter);
-
-                final MenuItem toggleDisabledItem = contextMenu.add(0, ITEM_TOGGLE_DISABLED, 0, R.string.showInDock);
-                toggleDisabledItem.setCheckable(true);
-                toggleDisabledItem.setChecked(!applicationModel.disabled);
-
-                final MenuItem toggleStickyItem = contextMenu.add(0, ITEM_TOGGLE_STICKY, 0, R.string.showInDockSticky);
-                toggleStickyItem.setCheckable(true);
-                toggleStickyItem.setChecked(applicationModel.sticky);
-
-                // Check for system apps
-                try {
-                    ApplicationInfo ai = getPackageManager().getApplicationInfo(applicationModel.packageName, 0);
-                    if ((ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) == 0) {
-                        final MenuItem itemUninstall = contextMenu.add(0, ITEM_UNINSTALL, 1, R.string.uninstall);
-                        itemUninstall.setIntent(IntentUtil.uninstallAppIntent(applicationModel.packageName));
-                    }
-                } catch (PackageManager.NameNotFoundException e) {
-                    // Do nothing here
-                }
-            }
-        });
+        lvApplications.setOnCreateContextMenuListener(new ApplicationsContextMenuListener());
 
         /*
          * Initialize data.
@@ -400,14 +338,6 @@ public final class Launcher extends Activity {
     }
 
     /**
-     * Open the drawer.
-     * @param view the originating view
-     */
-    public void openDrawer(final View view) {
-        switchTo(DRAWER_ID);
-    }
-
-    /**
      * Switch to a layout.
      *
      * @param id the id of the layout
@@ -555,6 +485,94 @@ public final class Launcher extends Activity {
                 }
             });
             imageView.setContentDescription(applicationModel.label);
+        }
+    }
+
+    /**
+     * Listener for all applications context menu.
+     */
+    private class ApplicationsContextMenuListener implements View.OnCreateContextMenuListener {
+        @Override
+        public void onCreateContextMenu(final ContextMenu contextMenu, final View view, final ContextMenu.ContextMenuInfo contextMenuInfo) {
+            final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) contextMenuInfo;
+            final ApplicationModel applicationModel = applicationModels.get(info.position);
+            contextMenuApplicationModel = applicationModel;
+
+            contextMenu.setHeaderTitle(applicationModel.label);
+            final MenuItem itemAppInfo = contextMenu.add(0, ITEM_APPINFO, 0, R.string.appinfo);
+            itemAppInfo.setIntent(IntentUtil.newAppDetailsIntent(applicationModel.packageName));
+
+            contextMenu.add(0, ITEM_RESET, 0, R.string.resetcounter);
+
+            final MenuItem toggleDisabledItem = contextMenu.add(0, ITEM_TOGGLE_DISABLED, 0, R.string.showInDock);
+            toggleDisabledItem.setCheckable(true);
+            toggleDisabledItem.setChecked(!applicationModel.disabled);
+
+            final MenuItem toggleStickyItem = contextMenu.add(0, ITEM_TOGGLE_STICKY, 0, R.string.showInDockSticky);
+            toggleStickyItem.setCheckable(true);
+            toggleStickyItem.setChecked(applicationModel.sticky);
+
+            // Check for system apps
+            try {
+                ApplicationInfo ai = getPackageManager().getApplicationInfo(applicationModel.packageName, 0);
+                if ((ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) == 0) {
+                    final MenuItem itemUninstall = contextMenu.add(0, ITEM_UNINSTALL, 1, R.string.uninstall);
+                    itemUninstall.setIntent(IntentUtil.uninstallAppIntent(applicationModel.packageName));
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                // Do nothing here
+            }
+        }
+    }
+
+    /**
+     * Listener for dock icon context menu.
+     */
+    private class DockContextMenuListener implements View.OnCreateContextMenuListener {
+
+        @Override
+        public void onCreateContextMenu(final ContextMenu contextMenu, final View view, final ContextMenu.ContextMenuInfo contextMenuInfo) {
+            if (view instanceof ImageView) {
+                final ImageView contextImageView = (ImageView) view;
+
+                if (contextImageView.getTag() instanceof ApplicationModel) {
+                    final ApplicationModel model = (ApplicationModel) contextImageView.getTag();
+                    contextMenuApplicationModel = model;
+
+                    contextMenu.add(0, ITEM_RESET, 0, R.string.resetcounter);
+
+                    final MenuItem toggleDisabledItem = contextMenu.add(0, ITEM_TOGGLE_DISABLED, 0, R.string.showInDock);
+                    toggleDisabledItem.setCheckable(true);
+                    toggleDisabledItem.setChecked(!model.disabled);
+
+                    final MenuItem toggleStickyItem = contextMenu.add(0, ITEM_TOGGLE_STICKY, 0, R.string.showInDockSticky);
+                    toggleStickyItem.setCheckable(true);
+                    toggleStickyItem.setChecked(model.sticky);
+                }
+            }
+        }
+    }
+
+    /**
+     * Listener for drawer icon context menu.
+     */
+    private class DrawerContextMenuListener implements View.OnCreateContextMenuListener {
+
+        @Override
+        public void onCreateContextMenu(final ContextMenu contextMenu, final View view, final ContextMenu.ContextMenuInfo contextMenuInfo) {
+            contextMenu.add(0, ITEM_CHOOSE_WIDGET, 0, R.string.choose_widget);
+            contextMenu.add(0, ITEM_REMOVE_WIDGET, 0, R.string.remove_widget);
+        }
+    }
+
+    /**
+     * Lister for drawer icon.
+     */
+    private class DrawerOnClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(final View view) {
+            switchTo(DRAWER_ID);
         }
     }
 
