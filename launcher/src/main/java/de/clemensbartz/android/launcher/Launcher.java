@@ -389,7 +389,7 @@ public final class Launcher extends Activity {
      * Open an app from the model.
      * @param applicationModel the model
      */
-    public void openApp(final ApplicationModel applicationModel) {
+    private void openApp(final ApplicationModel applicationModel) {
         new LoadMostUsedAppsAsyncTask().execute(applicationModel);
 
         final ComponentName component = new ComponentName(applicationModel.packageName, applicationModel.className);
@@ -501,7 +501,7 @@ public final class Launcher extends Activity {
     /**
      * Update applications.
      */
-    public void updateApplications() {
+    private void updateApplications() {
         new UpdateAsyncTask().execute();
     }
 
@@ -683,7 +683,7 @@ public final class Launcher extends Activity {
     private class UpdateAsyncTask extends AsyncTask<Integer, Integer, Integer> {
 
         /** Number of apps after which a refresh should be triggered. */
-        protected static final int REFRESH_NUMBER = 5;
+        static final int REFRESH_NUMBER = 5;
 
         @Override
         protected Integer doInBackground(final Integer... integers) {
