@@ -280,14 +280,14 @@ public final class Launcher extends Activity {
 
     @Override
     public void onBackPressed() {
-        hasSwitchedTo(HOME_ID);
+        switchTo(HOME_ID);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        hasSwitchedTo(HOME_ID);
+        switchTo(HOME_ID);
 
         updateDock();
     }
@@ -404,16 +404,15 @@ public final class Launcher extends Activity {
      * @param view the originating view
      */
     public void openDrawer(final View view) {
-        hasSwitchedTo(DRAWER_ID);
+        switchTo(DRAWER_ID);
     }
 
     /**
      * Switch to a layout.
      *
      * @param id the id of the layout
-     * @return if the layout has been switched
      */
-    private boolean hasSwitchedTo(final int id) {
+    private void switchTo(final int id) {
         switch (vsLauncher.getDisplayedChild()) {
             case HOME_ID:
                 if (id == DRAWER_ID) {
@@ -430,21 +429,17 @@ public final class Launcher extends Activity {
                     updateApplications();
 
                     vsLauncher.showNext();
-
-                    return true;
                 }
-                return false;
+                break;
             case DRAWER_ID:
                 if (id == HOME_ID) {
                     unregisterReceiver(packageChangedBroadcastReceiver);
 
                     vsLauncher.showPrevious();
-
-                    return true;
                 }
-                return false;
+                break;
             default:
-                return false;
+                break;
         }
     }
 
@@ -579,7 +574,7 @@ public final class Launcher extends Activity {
         @Override
         protected void onPostExecute(final Integer result) {
             new LoadMostUsedAppsAsyncTask().execute();
-            hasSwitchedTo(HOME_ID);
+            switchTo(HOME_ID);
         }
     }
 
@@ -599,7 +594,7 @@ public final class Launcher extends Activity {
         @Override
         protected void onPostExecute(final Integer result) {
             new LoadMostUsedAppsAsyncTask().execute();
-            hasSwitchedTo(HOME_ID);
+            switchTo(HOME_ID);
         }
     }
 
