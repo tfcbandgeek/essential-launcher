@@ -100,7 +100,7 @@ public final class HomeModel {
     private int appWidgetId = -1;
 
     /** Cache for most used applications. */
-    private List<ApplicationModel> mostUsedApplications =
+    private final List<ApplicationModel> mostUsedApplications =
             new ArrayList<>(NUMBER_OF_APPS);
 
     /** Writable SQLiteDatabase. */

@@ -94,7 +94,7 @@ public final class Launcher extends Activity {
     /** The view for holding the widget. */
     private FrameLayout frWidget;
     /** The views for launching the most used apps. */
-    private List<ImageView> dockImageViews = new ArrayList<>(HomeModel.NUMBER_OF_APPS);
+    private final List<ImageView> dockImageViews = new ArrayList<>(HomeModel.NUMBER_OF_APPS);
 
     /** The model for home. */
     private HomeModel model;
@@ -105,7 +105,7 @@ public final class Launcher extends Activity {
     /** The adapter for applications. */
     private DrawerListAdapter lvApplicationsAdapter;
     /** The list of installed applications. */
-    private List<ApplicationModel> applicationModels = new ArrayList<>(0);
+    private final List<ApplicationModel> applicationModels = new ArrayList<>(0);
     /** The broadcast receiver for package changes. */
     private final BroadcastReceiver packageChangedBroadcastReceiver = new BroadcastReceiver() {
         @Override
