@@ -30,20 +30,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 public final class ApplicationUsageDbHelper extends SQLiteOpenHelper {
     /** The instance for static lookup. */
     private static ApplicationUsageDbHelper instance;
-    /** The instance for application context. */
-    private static Context applicationContext;
     /** The version of the database. */
     private static final int DATABASE_VERSION = 3;
     /** The database name. */
     private static final String DATABASE_NAME = "ApplicationUsage.db";
-
-    /**
-     *
-     * @return the application context
-     */
-    public static Context getApplicationContext() {
-        return applicationContext;
-    }
 
     /**
      *
@@ -52,7 +42,7 @@ public final class ApplicationUsageDbHelper extends SQLiteOpenHelper {
      */
     public static SQLiteOpenHelper getInstance(final Context context) {
         if (instance == null) {
-            applicationContext = context.getApplicationContext();
+            final Context applicationContext = context.getApplicationContext();
             instance = new ApplicationUsageDbHelper(applicationContext);
         }
 
