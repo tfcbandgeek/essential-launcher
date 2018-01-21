@@ -29,7 +29,8 @@
                   android:launchMode="singleInstance"
                   android:stateNotNeeded="true"
                   android:theme="@android:style/Theme.DeviceDefault.Wallpaper.NoTitleBar"
-                  android:visibleToInstantApps="false">
+                  android:visibleToInstantApps="false"
+                  android:resizeableActivity="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.HOME"/>
