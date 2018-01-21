@@ -25,7 +25,7 @@ If you want to support development, please make sure:
 
 - You use Android Studio >= 3.0.1
 - You must not enable minify.
-- You use SDK Version >= 26.
+- You use SDK Version >= 27.
 - You specify minimum SDK Version as 21.
 - You use Java >= 8.
 - The maximum size for the APK is 30 KB.
