@@ -6,7 +6,7 @@ android:
       - platform-tools
       - tools
 
-      - android-26
+      - android-27
       
       - build-tools-27.0.2
 script:
