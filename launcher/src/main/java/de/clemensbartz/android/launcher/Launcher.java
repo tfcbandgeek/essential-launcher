@@ -163,13 +163,15 @@ public final class Launcher extends Activity {
         /*
          * Set handlers.
          */
-        ivDrawer.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-            @Override
-            public void onCreateContextMenu(final ContextMenu contextMenu, final View view, final ContextMenu.ContextMenuInfo contextMenuInfo) {
-                contextMenu.add(0, ITEM_CHOOSE_WIDGET, 0, R.string.choose_widget);
-                contextMenu.add(0, ITEM_REMOVE_WIDGET, 0, R.string.remove_widget);
-            }
-        });
+        if (hasAppWidgets(this)) {
+            ivDrawer.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                @Override
+                public void onCreateContextMenu(final ContextMenu contextMenu, final View view, final ContextMenu.ContextMenuInfo contextMenuInfo) {
+                    contextMenu.add(0, ITEM_CHOOSE_WIDGET, 0, R.string.choose_widget);
+                    contextMenu.add(0, ITEM_REMOVE_WIDGET, 0, R.string.remove_widget);
+                }
+            });
+        }
 
         for (final ImageView imageView : dockImageViews) {
             imageView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
@@ -447,6 +449,16 @@ public final class Launcher extends Activity {
             default:
                 return false;
         }
+    }
+
+    /**
+     * @param context the context to check for
+     * @return returns <code>true</code>, if <code>PackageManager.FEATURE_APP_WIDGETS</code>
+     * is supported, otherwise <code>false</code>.
+     */
+    private boolean hasAppWidgets(final Context context) {
+        final PackageManager pm = context.getPackageManager();
+        return pm.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS);
     }
 
     /**
