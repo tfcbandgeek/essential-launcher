@@ -569,8 +569,8 @@ public final class Launcher extends Activity {
      */
     private class ToggleStickyAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
         @Override
-        protected Integer doInBackground(final ApplicationModel... paramses) {
-            for (ApplicationModel applicationModel : paramses) {
+        protected Integer doInBackground(final ApplicationModel... applicationModels) {
+            for (ApplicationModel applicationModel : applicationModels) {
                 model.toggleSticky(applicationModel.packageName, applicationModel.className);
             }
 
@@ -589,8 +589,8 @@ public final class Launcher extends Activity {
      */
     private class ToggleDockAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
         @Override
-        protected Integer doInBackground(final ApplicationModel... paramses) {
-            for (ApplicationModel applicationModel : paramses) {
+        protected Integer doInBackground(final ApplicationModel... applicationModels) {
+            for (ApplicationModel applicationModel : applicationModels) {
                 model.toggleDisabled(applicationModel.packageName, applicationModel.className);
             }
 
@@ -609,8 +609,8 @@ public final class Launcher extends Activity {
      */
     private class ResetUsageAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
         @Override
-        protected Integer doInBackground(final ApplicationModel... paramses) {
-            for (ApplicationModel applicationModel : paramses) {
+        protected Integer doInBackground(final ApplicationModel... applicationModels) {
+            for (ApplicationModel applicationModel : applicationModels) {
                 model.resetUsage(applicationModel.packageName, applicationModel.className);
             }
 
@@ -628,12 +628,12 @@ public final class Launcher extends Activity {
      */
     private class LoadMostUsedAppsAsyncTask extends AsyncTask<ApplicationModel, DockUpdateModel, Integer> {
         @Override
-        protected Integer doInBackground(final ApplicationModel... paramses) {
-            for (ApplicationModel applicationModel : paramses) {
+        protected Integer doInBackground(final ApplicationModel... applicationModels) {
+            for (ApplicationModel applicationModel : applicationModels) {
                 model.addUsage(applicationModel.packageName, applicationModel.className);
             }
 
-            if (paramses.length == 0) {
+            if (applicationModels.length == 0) {
                 model.updateApplications();
             }
 
@@ -687,22 +687,22 @@ public final class Launcher extends Activity {
         protected static final int REFRESH_NUMBER = 5;
 
         @Override
-        protected Integer doInBackground(final Integer... paramses) {
+        protected Integer doInBackground(final Integer... integers) {
             final Intent intent = new Intent();
             intent.setAction(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
             final PackageManager pm = getPackageManager();
-            final List<ResolveInfo> resolveInfos =
+            final List<ResolveInfo> resolveInfoList =
                     pm.queryIntentActivities(intent, 0);
             Collections.sort(
-                    resolveInfos,
+                    resolveInfoList,
                     new ResolveInfo.DisplayNameComparator(pm)
             );
 
             int i = 0;
 
-            for (ResolveInfo resolveInfo : resolveInfos) {
+            for (ResolveInfo resolveInfo : resolveInfoList) {
                 i = i + 1;
                 final boolean disabled = model.isDisabled(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                 final boolean sticky = model.isSticky(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);

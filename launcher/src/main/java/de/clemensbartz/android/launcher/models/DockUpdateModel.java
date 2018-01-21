@@ -46,7 +46,7 @@ public final class DockUpdateModel {
 
     /**
      *
-     * @return the imageview
+     * @return the image view
      */
     public ImageView getImageView() {
         return imageView;

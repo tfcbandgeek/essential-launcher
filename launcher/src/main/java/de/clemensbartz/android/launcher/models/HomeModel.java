@@ -139,7 +139,7 @@ public final class HomeModel {
 
     /**
      *
-     * @return an unmodfiable list of most used applications
+     * @return an unmodifiable list of most used applications
      */
     public List<ApplicationModel> getMostUsedApplications() {
         return Collections.unmodifiableList(mostUsedApplications);
