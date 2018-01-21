@@ -184,8 +184,6 @@ public final class Launcher extends Activity {
                             final ApplicationModel model = (ApplicationModel) contextImageView.getTag();
                             contextMenuApplicationModel = model;
 
-                            contextMenu.setHeaderTitle(model.label);
-
                             contextMenu.add(0, ITEM_RESET, 0, R.string.resetcounter);
 
                             final MenuItem toggleDisabledItem = contextMenu.add(0, ITEM_TOGGLE_DISABLED, 0, R.string.showInDock);
