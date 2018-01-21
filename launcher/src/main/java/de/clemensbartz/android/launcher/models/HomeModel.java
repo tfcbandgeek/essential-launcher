@@ -93,7 +93,7 @@ public final class HomeModel {
 
     /** Key for the appWidgetId property. */
     private static final String KEY_APPWIDGET_ID = "appWidgetId";
-    /** Key for the hide overlay property. */
+    ///** Key for the hide overlay property. */
     //This key has been removed as of version 1.3.
     //private static final String KEY_HIDE_OVERLAY_ID = "hideOverlay";
     /** Value for the appWidgetId property. */
