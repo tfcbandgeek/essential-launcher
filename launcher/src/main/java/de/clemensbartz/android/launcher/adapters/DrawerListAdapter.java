@@ -44,16 +44,14 @@ public final class DrawerListAdapter extends ArrayAdapter<ApplicationModel> {
     /**
      * Initializes a new adapter.
      * @param context the activity
-     * @param resource the resource id
      * @param objects the list of application models
      */
     public DrawerListAdapter(
             final Context context,
-            final int resource,
             final List<ApplicationModel> objects) {
 
-        super(context, resource, objects);
-        this.resource = resource;
+        super(context, R.layout.drawer_item, objects);
+        this.resource = R.layout.drawer_item;
     }
 
     @Override

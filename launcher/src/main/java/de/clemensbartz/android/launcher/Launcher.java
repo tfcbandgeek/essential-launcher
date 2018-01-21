@@ -263,7 +263,7 @@ public final class Launcher extends Activity {
         appWidgetHost.startListening();
 
         // Initialize applications adapter and set it.
-        lvApplicationsAdapter = new DrawerListAdapter(this, R.layout.drawer_item, applicationModels);
+        lvApplicationsAdapter = new DrawerListAdapter(this, applicationModels);
 
         lvApplications.setAdapter(lvApplicationsAdapter);
     }
