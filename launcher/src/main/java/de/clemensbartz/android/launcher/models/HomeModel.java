@@ -547,11 +547,4 @@ public final class HomeModel {
         this.appWidgetId = appWidgetId;
     }
 
-    /**
-     * Close the database.
-     */
-    public void close() {
-        dbHelper.close();
-    }
-
 }
