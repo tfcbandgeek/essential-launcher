@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">基本發射器</string>
+    <string name="open_drawer">顯示所有應用</string>
+    <string name="uninstall">卸載應用程序</string>
+    <string name="appinfo">顯示有關應用程序的信息</string>
+    <string name="choose_widget">选择小部件</string>
+    <string name="remove_widget">删除一个小部件</string>
+    <string name="resetcounter">重置计数器</string>
+    <string name="showInDockSticky">钉到托盘上</string>
+    <string name="showInDock">在托盘中显示</string>
+    <string name="unassigned_dock">未分配的托盘图标</string>
+</resources>
