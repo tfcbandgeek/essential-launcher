@@ -196,9 +196,11 @@ public final class Launcher extends Activity {
         ivDrawer.setImageDrawable(rd);
 
         // Initialize widget handling.
-        appWidgetManager = AppWidgetManager.getInstance(this);
-        appWidgetHost = new AppWidgetHost(this, R.id.frWidget);
-        appWidgetHost.startListening();
+        if (hasAppWidgets(this)) {
+            appWidgetManager = AppWidgetManager.getInstance(this);
+            appWidgetHost = new AppWidgetHost(this, R.id.frWidget);
+            appWidgetHost.startListening();
+        }
 
         // Initialize applications adapter and set it.
         lvApplicationsAdapter = new DrawerListAdapter(this, applicationModels);
@@ -412,14 +414,16 @@ public final class Launcher extends Activity {
     private void addHostView(final int appWidgetId) {
         frWidget.removeAllViews();
 
-        final AppWidgetProviderInfo appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId);
-        if (appWidgetInfo != null) {
-            final AppWidgetHostView hostView = appWidgetHost.createView(this, appWidgetId, appWidgetInfo);
-            hostView.setAppWidget(appWidgetId, appWidgetInfo);
+        if (hasAppWidgets(this)) {
+            final AppWidgetProviderInfo appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId);
+            if (appWidgetInfo != null) {
+                final AppWidgetHostView hostView = appWidgetHost.createView(this, appWidgetId, appWidgetInfo);
+                hostView.setAppWidget(appWidgetId, appWidgetInfo);
 
-            frWidget.addView(hostView);
-        } else {
-            model.setAppWidgetId(-1);
+                frWidget.addView(hostView);
+            } else {
+                model.setAppWidgetId(-1);
+            }
         }
     }
 
