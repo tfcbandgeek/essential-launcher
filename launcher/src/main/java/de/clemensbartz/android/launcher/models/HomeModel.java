@@ -91,6 +91,16 @@ public final class HomeModel {
     /** Preferences value. */
     private final SharedPreferences preferences;
 
+    /** Cache for most used applications. */
+    private final List<ApplicationModel> mostUsedApplications =
+            new ArrayList<>(NUMBER_OF_APPS);
+
+    /** Writable SQLiteDatabase. */
+    private SQLiteDatabase writableDatabase;
+
+    /** The instance in during application life cycle. */
+    private static HomeModel instance;
+
     /** Key for the appWidgetId property. */
     private static final String KEY_APPWIDGET_ID = "appWidgetId";
     ///** Key for the hide overlay property. */
@@ -99,21 +109,28 @@ public final class HomeModel {
     /** Value for the appWidgetId property. */
     private int appWidgetId = -1;
 
-    /** Cache for most used applications. */
-    private final List<ApplicationModel> mostUsedApplications =
-            new ArrayList<>(NUMBER_OF_APPS);
+    /**
+     *
+     * @param activity the Activity
+     * @return the instance of the home model.
+     */
+    public static HomeModel getInstance(final Activity activity) {
+        if (instance == null) {
+            instance = new HomeModel(activity);
+        }
 
-    /** Writable SQLiteDatabase. */
-    private SQLiteDatabase writableDatabase;
+        return instance;
+    }
+
 
     /**
      * Create a new model in a context.
      * @param context the context
      */
-    public HomeModel(final Activity context) {
+    private HomeModel(final Activity context) {
         preferences = context.getPreferences(Context.MODE_PRIVATE);
         dbHelper = ApplicationUsageDbHelper.getInstance(context);
-        pm = context.getPackageManager();
+        pm = context.getApplicationContext().getPackageManager();
     }
 
     /**

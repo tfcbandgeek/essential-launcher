@@ -210,7 +210,7 @@ public final class Launcher extends Activity {
     protected void onStart() {
         super.onStart();
 
-        model = new HomeModel(this);
+        model = HomeModel.getInstance(this);
 
         // Go
         new LoadModelAsyncTask().execute();
