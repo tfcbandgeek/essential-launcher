@@ -719,7 +719,6 @@ public final class Launcher extends Activity {
             int i = 0;
 
             for (ResolveInfo resolveInfo : resolveInfoList) {
-                i = i + 1;
                 final boolean disabled = model.isDisabled(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                 final boolean sticky = model.isSticky(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                 final ApplicationModel applicationModel = new ApplicationModel();
@@ -729,7 +728,14 @@ public final class Launcher extends Activity {
                 applicationModel.className = resolveInfo.activityInfo.name;
                 applicationModel.disabled = disabled;
                 applicationModel.sticky = sticky;
+
+                if (applicationModel.packageName == null || applicationModel.className == null) {
+                    continue;
+                }
+
                 applicationModels.add(applicationModel);
+                i = i + 1;
+
                 if (i % REFRESH_NUMBER == 0) {
                     publishProgress();
                 }

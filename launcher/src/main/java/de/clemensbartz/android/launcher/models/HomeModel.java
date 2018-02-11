@@ -211,6 +211,11 @@ public final class HomeModel {
                             applicationModel.disabled = disabled;
                             applicationModel.sticky = sticky;
 
+                            // Delete null-loaded values
+                            if (packageName == null || className == null) {
+                                delete(packageName, className);
+                            }
+
                             mostUsedApplications.add(applicationModel);
                         } catch (PackageManager.NameNotFoundException e) {
                             /* Although Android Studio claims,
@@ -240,6 +245,11 @@ public final class HomeModel {
      * @param className the class name
      */
     public void toggleSticky(final String packageName, final String className) {
+        if (packageName == null || className == null) {
+            delete(packageName, className);
+            return;
+        }
+
         final SQLiteDatabase db = getDatabase();
 
         db.beginTransaction();
@@ -294,6 +304,11 @@ public final class HomeModel {
      * @param className the class name
      */
     public void toggleDisabled(final String packageName, final String className) {
+        if (packageName == null || className == null) {
+            delete(packageName, className);
+            return;
+        }
+
         final SQLiteDatabase db = getDatabase();
 
         db.beginTransaction();
@@ -349,6 +364,11 @@ public final class HomeModel {
      * @return if the application is sticky
      */
     public boolean isSticky(final String packageName, final String className) {
+        if (packageName == null || className == null) {
+            delete(packageName, className);
+            return false;
+        }
+
         final SQLiteDatabase db = getDatabase();
 
         boolean sticky = false;
@@ -388,6 +408,11 @@ public final class HomeModel {
      * @return if the application is disabled
      */
     public boolean isDisabled(final String packageName, final String className) {
+        if (packageName == null || className == null) {
+            delete(packageName, className);
+            return true;
+        }
+
         final SQLiteDatabase db = getDatabase();
 
         boolean disabled = false;
@@ -481,6 +506,11 @@ public final class HomeModel {
      * @param className the class name
      */
     public void addUsage(final String packageName, final String className) {
+        if (packageName == null || className == null) {
+            delete(packageName, className);
+            return;
+        }
+
         final SQLiteDatabase db = getDatabase();
 
         db.beginTransaction();
