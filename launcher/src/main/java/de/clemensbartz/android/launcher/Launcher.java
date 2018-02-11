@@ -32,6 +32,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.AsyncTask;
@@ -52,9 +53,11 @@ import java.util.Collections;
 import java.util.List;
 
 import de.clemensbartz.android.launcher.adapters.DrawerListAdapter;
+import de.clemensbartz.android.launcher.caches.IconCache;
 import de.clemensbartz.android.launcher.models.ApplicationModel;
 import de.clemensbartz.android.launcher.models.DockUpdateModel;
 import de.clemensbartz.android.launcher.models.HomeModel;
+import de.clemensbartz.android.launcher.util.BitmapUtil;
 import de.clemensbartz.android.launcher.util.IntentUtil;
 
 /**
@@ -96,6 +99,8 @@ public final class Launcher extends Activity {
     /** The views for launching the most used apps. */
     private final List<ImageView> dockImageViews = new ArrayList<>(HomeModel.NUMBER_OF_APPS);
 
+    /** The icon cache. */
+    private IconCache iconCache;
     /** The model for home. */
     private HomeModel model;
     /** The manager for widgets. */
@@ -110,14 +115,12 @@ public final class Launcher extends Activity {
     private final BroadcastReceiver packageChangedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
+            iconCache.invalidate();
             updateApplications();
         }
     };
     /** The temporary application model for context menus. */
     private ApplicationModel contextMenuApplicationModel;
-
-    /** The drawable for the launcher. */
-    private Drawable icLauncher;
 
     /**
      * Adjust StrictMode based on environment parameters.
@@ -189,8 +192,6 @@ public final class Launcher extends Activity {
         /*
          * Initialize data.
          */
-        icLauncher = getDrawable(R.drawable.ic_launcher);
-
         // Animate the image of the drawer button.
         final RippleDrawable rd = new RippleDrawable(ColorStateList.valueOf(Color.GRAY), ivDrawer.getDrawable(), null);
         ivDrawer.setImageDrawable(rd);
@@ -211,6 +212,10 @@ public final class Launcher extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        iconCache = IconCache.getInstance(this);
+        iconCache.invalidate();
+
 
         model = HomeModel.getInstance(this);
 
@@ -450,6 +455,28 @@ public final class Launcher extends Activity {
             openApp((ApplicationModel) imageView.getTag());
         }
     }
+
+    /**
+     * Load an internal drawable with a key.
+     * @param key the key
+     * @return the image
+     */
+    private BitmapDrawable loadDrawable(final String key) {
+        BitmapDrawable bitmapDrawable = iconCache.getIcon(key);
+
+        if (bitmapDrawable == null) {
+            if (IconCache.IC_LAUNCHER_KEY.equals(key)) {
+                final Drawable icLauncher = getDrawable(R.drawable.ic_launcher);
+                bitmapDrawable = BitmapUtil.resizeDrawable(getResources(), icLauncher);
+                iconCache.create(IconCache.IC_LAUNCHER_KEY, bitmapDrawable);
+            } else {
+                throw new RuntimeException("Invalid key");
+            }
+        }
+
+        return bitmapDrawable;
+    }
+
     /**
      * Update the dock image to feature the application model.
      * @param imageView the view
@@ -459,7 +486,7 @@ public final class Launcher extends Activity {
         if (applicationModel == null) {
             if (imageView.getTag() != null) {
                 imageView.setTag(null);
-                imageView.setImageDrawable(icLauncher);
+                imageView.setImageDrawable(loadDrawable(IconCache.IC_LAUNCHER_KEY));
                 imageView.setOnClickListener(null);
                 imageView.setContentDescription(null);
             }
@@ -627,7 +654,7 @@ public final class Launcher extends Activity {
         @Override
         protected Integer doInBackground(final ApplicationModel... applicationModels) {
             for (ApplicationModel applicationModel : applicationModels) {
-                model.resetUsage(applicationModel.packageName, applicationModel.className);
+                model.resetUsage(applicationModel.packageName, applicationModel.className, getResources(), iconCache);
             }
 
             return 0;
@@ -646,11 +673,11 @@ public final class Launcher extends Activity {
         @Override
         protected Integer doInBackground(final ApplicationModel... applicationModels) {
             for (ApplicationModel applicationModel : applicationModels) {
-                model.addUsage(applicationModel.packageName, applicationModel.className);
+                model.addUsage(applicationModel.packageName, applicationModel.className, getResources(), iconCache);
             }
 
             if (applicationModels.length == 0) {
-                model.updateApplications();
+                model.updateApplications(getResources(), iconCache);
             }
 
             final List<ApplicationModel> mostUsedApplications = model.getMostUsedApplications();
@@ -680,7 +707,7 @@ public final class Launcher extends Activity {
     private class LoadModelAsyncTask extends AsyncTask<Integer, Integer, Integer> {
         @Override
         protected Integer doInBackground(final Integer... params) {
-            model.loadValues();
+            model.loadValues(getResources(), iconCache);
 
             return model.getAppWidgetId();
         }
@@ -722,8 +749,6 @@ public final class Launcher extends Activity {
                 final boolean disabled = model.isDisabled(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                 final boolean sticky = model.isSticky(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                 final ApplicationModel applicationModel = new ApplicationModel();
-                applicationModel.label = resolveInfo.loadLabel(pm);
-                applicationModel.icon = resolveInfo.loadIcon(pm);
                 applicationModel.packageName = resolveInfo.activityInfo.packageName;
                 applicationModel.className = resolveInfo.activityInfo.name;
                 applicationModel.disabled = disabled;
@@ -731,6 +756,16 @@ public final class Launcher extends Activity {
 
                 if (applicationModel.packageName == null || applicationModel.className == null) {
                     continue;
+                }
+
+                applicationModel.label = resolveInfo.loadLabel(pm);
+
+                final String key = BitmapUtil.createKey(applicationModel.packageName, applicationModel.className);
+                applicationModel.icon = iconCache.getIcon(key);
+                if (applicationModel.icon == null) {
+                    final BitmapDrawable bitmapDrawable = BitmapUtil.resizeDrawable(getResources(), resolveInfo.loadIcon(pm));
+                    iconCache.create(key, bitmapDrawable);
+                    applicationModel.icon = bitmapDrawable;
                 }
 
                 applicationModels.add(applicationModel);

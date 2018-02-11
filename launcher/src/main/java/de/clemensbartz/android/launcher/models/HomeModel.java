@@ -24,16 +24,21 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.clemensbartz.android.launcher.caches.IconCache;
 import de.clemensbartz.android.launcher.db.ApplicationUsageDbHelper;
 import de.clemensbartz.android.launcher.db.ApplicationUsageModel;
+import de.clemensbartz.android.launcher.util.BitmapUtil;
 
 /**
  * Model class for HomeActivity.
@@ -147,9 +152,11 @@ public final class HomeModel {
 
     /**
      * Load preference values.
+     * @param resources the activity this was called from
+     * @param iconCache the icon cache to get the icons from
      */
-    public void loadValues() {
-        updateApplications();
+    public void loadValues(final Resources resources, final IconCache iconCache) {
+        updateApplications(resources, iconCache);
 
         appWidgetId = preferences.getInt(KEY_APPWIDGET_ID, -1);
     }
@@ -166,8 +173,10 @@ public final class HomeModel {
      * Update the list of applications.
      * <p/>
      * This method has to be called from an async task.
+     * @param resources the activity this was called from
+     * @param iconCache the icon cache to get the icons from
      */
-    public void updateApplications() {
+    public void updateApplications(final Resources resources, final IconCache iconCache) {
         final SQLiteDatabase db = getDatabase();
 
         mostUsedApplications.clear();
@@ -204,8 +213,6 @@ public final class HomeModel {
                                 delete(packageName, className);
                             }
                             final ApplicationModel applicationModel = new ApplicationModel();
-                            applicationModel.label = info.loadLabel(pm);
-                            applicationModel.icon = info.loadIcon(pm);
                             applicationModel.packageName = packageName;
                             applicationModel.className = className;
                             applicationModel.disabled = disabled;
@@ -214,6 +221,16 @@ public final class HomeModel {
                             // Delete null-loaded values
                             if (packageName == null || className == null) {
                                 delete(packageName, className);
+                            }
+
+                            applicationModel.label = info.loadLabel(pm);
+
+                            final String key = BitmapUtil.createKey(applicationModel.packageName, applicationModel.className);
+                            applicationModel.icon = iconCache.getIcon(key);
+                            if (applicationModel.icon == null) {
+                                final BitmapDrawable bitmapDrawable = BitmapUtil.resizeDrawable(resources, info.loadIcon(pm));
+                                iconCache.create(key, bitmapDrawable);
+                                applicationModel.icon = bitmapDrawable;
                             }
 
                             mostUsedApplications.add(applicationModel);
@@ -449,8 +466,10 @@ public final class HomeModel {
      * Reset the counter for an application.
      * @param packageName the package name
      * @param className the class name
+     * @param resources the activity this was called from
+     * @param iconCache the icon cache to get the icons from
      */
-    public void resetUsage(final String packageName, final String className) {
+    public void resetUsage(final String packageName, final String className, final Resources resources, final IconCache iconCache) {
         final SQLiteDatabase db = getDatabase();
 
         db.beginTransaction();
@@ -497,15 +516,17 @@ public final class HomeModel {
             }
         }
 
-        updateApplications();
+        updateApplications(resources, iconCache);
     }
 
     /**
      * Increase the counter of an app.
      * @param packageName the package name
      * @param className the class name
+     * @param resources the activity this was called from
+     * @param iconCache the icon cache to get the icons from
      */
-    public void addUsage(final String packageName, final String className) {
+    public void addUsage(final String packageName, final String className, final Resources resources, final IconCache iconCache) {
         if (packageName == null || className == null) {
             delete(packageName, className);
             return;
@@ -541,7 +562,7 @@ public final class HomeModel {
                                 values, SELECTION, new String[]{packageName, className});
                         db.setTransactionSuccessful();
                     } else {
-                        resetUsage(packageName, className);
+                        resetUsage(packageName, className, resources, iconCache);
                     }
                 } else {
                     // insert
@@ -563,7 +584,7 @@ public final class HomeModel {
             }
         }
 
-        updateApplications();
+        updateApplications(resources, iconCache);
     }
 
     /**

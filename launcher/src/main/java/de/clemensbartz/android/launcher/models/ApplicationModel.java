@@ -17,7 +17,7 @@
 
 package de.clemensbartz.android.launcher.models;
 
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
 
 /**
  * Model for applications. Out of performance reasons, this class will be excluded from
@@ -32,7 +32,7 @@ public final class ApplicationModel {
     public CharSequence label;
     /** The icon. */
     @SuppressWarnings("CheckStyle")
-    public Drawable icon;
+    public BitmapDrawable icon;
     /** The package name. */
     @SuppressWarnings("CheckStyle")
     public String packageName;
