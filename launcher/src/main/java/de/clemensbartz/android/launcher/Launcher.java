@@ -469,8 +469,6 @@ public final class Launcher extends Activity {
                 final Drawable icLauncher = getDrawable(R.drawable.ic_launcher);
                 bitmapDrawable = BitmapUtil.resizeDrawable(getResources(), icLauncher);
                 iconCache.create(IconCache.IC_LAUNCHER_KEY, bitmapDrawable);
-            } else {
-                throw new RuntimeException("Invalid key");
             }
         }
 
