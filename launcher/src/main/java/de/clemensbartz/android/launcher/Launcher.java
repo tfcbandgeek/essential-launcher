@@ -725,7 +725,7 @@ public final class Launcher extends Activity {
     private class UpdateAsyncTask extends AsyncTask<Integer, Integer, Integer> {
 
         /** Number of apps after which a refresh should be triggered. */
-        static final int REFRESH_NUMBER = 5;
+        private static final int REFRESH_NUMBER = 5;
 
         @Override
         protected Integer doInBackground(final Integer... integers) {
