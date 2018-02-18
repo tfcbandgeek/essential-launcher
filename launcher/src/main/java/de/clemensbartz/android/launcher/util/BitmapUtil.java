@@ -73,7 +73,6 @@ public final class BitmapUtil {
 
         final Bitmap bitmap = convertToBitmap(res.getDisplayMetrics(), drawable);
         final Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, px, px, false);
-        bitmap.recycle();
 
         return new BitmapDrawable(res, resizedBitmap);
     }
