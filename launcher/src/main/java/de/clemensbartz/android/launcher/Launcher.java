@@ -109,6 +109,8 @@ public final class Launcher extends Activity {
     private AppWidgetHost appWidgetHost;
     /** The adapter for applications. */
     private DrawerListAdapter lvApplicationsAdapter;
+    /** The asynchronous task for updating the list view. */
+    private UpdateAsyncTask updateAsyncTask;
     /** The list of installed applications. */
     private final List<ApplicationModel> applicationModels = new ArrayList<>(0);
     /** The broadcast receiver for package changes. */
@@ -437,7 +439,12 @@ public final class Launcher extends Activity {
      * Update applications.
      */
     private void updateApplications() {
-        new UpdateAsyncTask().execute();
+        if (updateAsyncTask != null && !updateAsyncTask.isCancelled()) {
+            updateAsyncTask.cancel(true);
+        }
+
+        updateAsyncTask = new UpdateAsyncTask();
+        updateAsyncTask.execute();
     }
 
     /**
@@ -772,7 +779,11 @@ public final class Launcher extends Activity {
                 i = i + 1;
 
                 if (i % REFRESH_NUMBER == 0) {
-                    publishProgress();
+                    if (isCancelled()) {
+                        break;
+                    } else {
+                        publishProgress();
+                    }
                 }
             }
 
