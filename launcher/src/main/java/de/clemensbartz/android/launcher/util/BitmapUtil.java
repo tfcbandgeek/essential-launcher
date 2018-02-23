@@ -65,7 +65,7 @@ public final class BitmapUtil {
     public static BitmapDrawable resizeDrawable(final Resources res, final Drawable drawable) {
         final int px = pxFrom60dp(res.getDisplayMetrics());
 
-        final Bitmap bitmap = convertToBitmap(res.getDisplayMetrics(), drawable);
+        final Bitmap bitmap = convertToBitmap(drawable);
         final Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, px, px, false);
 
         return new BitmapDrawable(res, resizedBitmap);
@@ -92,11 +92,10 @@ public final class BitmapUtil {
 
     /**
      * Convert any drawable in a bitmap.
-     * @param metrics the display metrics
      * @param drawable the drawable
      * @return a bitmap
      */
-    public static Bitmap convertToBitmap(final DisplayMetrics metrics, final Drawable drawable) {
+    private static Bitmap convertToBitmap(final Drawable drawable) {
         // Check if there is a shortcut
         if (drawable instanceof BitmapDrawable) {
             final BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
