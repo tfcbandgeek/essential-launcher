@@ -53,13 +53,7 @@ public final class BitmapUtil {
      * @return the key
      */
     public static String createKey(final String packname, final String classname) {
-        final StringBuilder stringBuilder = new StringBuilder(packname.length() + SEPARATOR.length() + classname.length());
-
-        stringBuilder.append(packname);
-        stringBuilder.append(SEPARATOR);
-        stringBuilder.append(classname);
-
-        return stringBuilder.toString();
+        return packname + SEPARATOR + classname;
     }
 
     /**
