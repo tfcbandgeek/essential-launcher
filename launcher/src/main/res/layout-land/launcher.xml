@@ -16,128 +16,160 @@
   ~     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<ViewSwitcher
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/vsLauncher"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Launcher" android:id="@+id/vsLauncher">
-    <LinearLayout android:layout_width="match_parent"
+    tools:context=".Launcher">
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".HomeActivity" android:baselineAligned="false"
-        android:orientation="vertical">
+        android:baselineAligned="false"
+        android:orientation="vertical"
+        tools:context=".HomeActivity">
 
         <FrameLayout
+            android:id="@+id/frWidget"
             android:layout_width="fill_parent"
-            android:layout_height="0dp" android:layout_weight="1"
-            android:id="@+id/frWidget">
-        </FrameLayout>
+            android:layout_height="0dp"
+            android:layout_weight="1"></FrameLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="60dp">
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="55dp"
                 android:id="@+id/ivDock1"
-                android:src="@drawable/ic_launcher" android:layout_weight="1"
-                android:clickable="true" android:focusable="true" android:paddingEnd="5dp"
-                android:paddingStart="5dp" android:padding="5dp"
-                android:contentDescription="@string/unassigned_dock"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter" />
-            <ImageView android:layout_width="wrap_content"
+                android:layout_width="wrap_content"
                 android:layout_height="55dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:clickable="true"
+                android:contentDescription="@string/unassigned_dock"
+                android:focusable="true"
+                android:padding="5dp"
+                android:paddingEnd="5dp"
+                android:paddingStart="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_launcher" />
+
+            <ImageView
                 android:id="@+id/ivDock2"
-                android:src="@drawable/ic_launcher"
-                android:layout_weight="1" android:focusable="true" android:clickable="true"
-                android:paddingStart="5dp" android:paddingEnd="5dp"
-                android:padding="5dp"
-                android:contentDescription="@string/unassigned_dock"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter" />
-
-            <ImageView android:layout_width="wrap_content"
+                android:layout_width="wrap_content"
                 android:layout_height="55dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:clickable="true"
+                android:contentDescription="@string/unassigned_dock"
+                android:focusable="true"
+                android:padding="5dp"
+                android:paddingEnd="5dp"
+                android:paddingStart="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_launcher" />
+
+            <ImageView
                 android:id="@+id/ivDock3"
-                android:src="@drawable/ic_launcher"
-                android:layout_weight="1" android:focusable="true" android:clickable="true"
-                android:paddingStart="5dp" android:paddingEnd="5dp"
-                android:padding="5dp"
-                android:contentDescription="@string/unassigned_dock"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter" />
-
-            <ImageView android:layout_width="wrap_content"
+                android:layout_width="wrap_content"
                 android:layout_height="55dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:clickable="true"
+                android:contentDescription="@string/unassigned_dock"
+                android:focusable="true"
+                android:padding="5dp"
+                android:paddingEnd="5dp"
+                android:paddingStart="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_launcher" />
+
+            <ImageView
                 android:id="@+id/ivDrawer"
-                android:src="@drawable/ic_view_module_white_48dp"
+                android:layout_width="wrap_content"
+                android:layout_height="55dp"
                 android:layout_weight="1"
-                android:focusable="true" android:clickable="true" android:padding="5dp"
-                android:paddingEnd="5dp" android:paddingStart="5dp"
+                android:adjustViewBounds="true"
+                android:clickable="true"
                 android:contentDescription="@string/open_drawer"
-                android:adjustViewBounds="true"
+                android:focusable="true"
                 android:longClickable="true"
-                android:scaleType="fitCenter" />
+                android:padding="5dp"
+                android:paddingEnd="5dp"
+                android:paddingStart="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_view_module_white_48dp" />
 
-            <ImageView android:layout_width="wrap_content"
-                android:layout_height="55dp"
+            <ImageView
                 android:id="@+id/ivDock4"
-                android:src="@drawable/ic_launcher"
-                android:layout_weight="1" android:focusable="true" android:clickable="true"
-                android:padding="5dp" android:paddingEnd="5dp"
-                android:paddingStart="5dp"
-                android:contentDescription="@string/unassigned_dock"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter" />
-
-            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="55dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:clickable="true"
+                android:contentDescription="@string/unassigned_dock"
+                android:focusable="true"
+                android:padding="5dp"
+                android:paddingEnd="5dp"
+                android:paddingStart="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_launcher" />
+
+            <ImageView
                 android:id="@+id/ivDock5"
-                android:src="@drawable/ic_launcher"
-                android:layout_weight="1"
-                android:focusable="true"
-                android:clickable="true"
-                android:padding="5dp"
-                android:paddingEnd="5dp"
-                android:paddingStart="5dp"
-                android:contentDescription="@string/unassigned_dock"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter" />
-
-            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="55dp"
-                android:id="@+id/ivDock6"
-                android:src="@drawable/ic_launcher"
                 android:layout_weight="1"
-                android:focusable="true"
+                android:adjustViewBounds="true"
                 android:clickable="true"
+                android:contentDescription="@string/unassigned_dock"
+                android:focusable="true"
                 android:padding="5dp"
                 android:paddingEnd="5dp"
                 android:paddingStart="5dp"
-                android:contentDescription="@string/unassigned_dock"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_launcher" />
+
+            <ImageView
+                android:id="@+id/ivDock6"
+                android:layout_width="wrap_content"
+                android:layout_height="55dp"
+                android:layout_weight="1"
                 android:adjustViewBounds="true"
-                android:scaleType="fitCenter" />
+                android:clickable="true"
+                android:contentDescription="@string/unassigned_dock"
+                android:focusable="true"
+                android:padding="5dp"
+                android:paddingEnd="5dp"
+                android:paddingStart="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_launcher" />
         </LinearLayout>
 
     </LinearLayout>
-    <LinearLayout android:orientation="vertical"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         tools:context=".DrawerActivity">
+
         <GridView
+            android:id="@+id/lvApplications"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/lvApplications" android:numColumns="auto_fit"
+            android:clipChildren="true"
+            android:clipToPadding="true"
             android:columnWidth="75dp"
-            android:clipChildren="true" android:clipToPadding="true"
-            android:horizontalSpacing="10dp" android:verticalSpacing="5dp"
-            android:stretchMode="columnWidth"
+            android:horizontalSpacing="10dp"
+            android:numColumns="auto_fit"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp"
             android:smoothScrollbar="false"
-            android:paddingTop="10dp" android:paddingLeft="10dp"
-            android:paddingRight="10dp"/>
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="5dp" />
     </LinearLayout>
 </ViewSwitcher>
