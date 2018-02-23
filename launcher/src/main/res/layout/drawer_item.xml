@@ -18,22 +18,24 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="100dp"
+    android:minHeight="100dp"
     android:orientation="vertical"
-          android:layout_width="fill_parent"
-          android:layout_height="100dp" android:minHeight="100dp"
     tools:ignore="UseCompoundDrawables">
 
     <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:contentDescription="@string/drawer_item_image"
-            android:id="@+id/icon" android:layout_gravity="center_horizontal"
-            />
+        android:id="@+id/icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/drawer_item_image" />
+
     <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/name"
-            style="@android:style/TextAppearance.DeviceDefault"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_vertical|center_horizontal"/>
+        android:id="@+id/name"
+        style="@android:style/TextAppearance.DeviceDefault"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_vertical|center_horizontal" />
 </LinearLayout>
