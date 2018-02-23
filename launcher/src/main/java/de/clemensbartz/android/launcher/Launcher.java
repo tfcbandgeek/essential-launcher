@@ -171,7 +171,8 @@ public final class Launcher extends Activity {
 
         ivDrawer.setOnClickListener(new DrawerOnClickListener());
 
-        for (final ImageView imageView : dockImageViews) {
+        for (int i = 0, dockImageViewsSize = dockImageViews.size(); i < dockImageViewsSize; i++) {
+            final ImageView imageView = dockImageViews.get(i);
             imageView.setOnCreateContextMenuListener(new DockContextMenuListener());
         }
 
@@ -743,7 +744,8 @@ public final class Launcher extends Activity {
 
             int i = 0;
 
-            for (ResolveInfo resolveInfo : resolveInfoList) {
+            for (int i1 = 0, resolveInfoListSize = resolveInfoList.size(); i1 < resolveInfoListSize; i1++) {
+                final ResolveInfo resolveInfo = resolveInfoList.get(i1);
                 final boolean disabled = model.isDisabled(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                 final boolean sticky = model.isSticky(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                 final ApplicationModel applicationModel = new ApplicationModel();
