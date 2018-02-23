@@ -77,17 +77,7 @@ public final class BitmapUtil {
      * @return the px
      */
     private static int pxFrom60dp(final DisplayMetrics metrics) {
-        return pxFromDp(metrics, DEFAULT_DP).intValue();
-    }
-
-    /**
-     * Convert dp to px.
-     * @param metrics the metrics of the screen
-     * @param dp the dp
-     * @return px
-     */
-    private static Float pxFromDp(final DisplayMetrics metrics, final float dp) {
-        return dp * metrics.density;
+        return (int) (metrics.density * DEFAULT_DP);
     }
 
     /**
