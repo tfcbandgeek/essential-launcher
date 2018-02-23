@@ -31,7 +31,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.drawable.BitmapDrawable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import de.clemensbartz.android.launcher.caches.IconCache;
@@ -162,10 +161,10 @@ public final class HomeModel {
 
     /**
      *
-     * @return an unmodifiable list of most used applications
+     * @return the list of most used applications
      */
     public List<ApplicationModel> getMostUsedApplications() {
-        return Collections.unmodifiableList(mostUsedApplications);
+        return mostUsedApplications;
     }
 
     /**
