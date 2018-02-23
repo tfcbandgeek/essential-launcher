@@ -113,8 +113,8 @@ public final class BitmapUtil {
 
         // Check the size
         final Rect bounds = foregroundDrawable.getBounds();
-        final int boundsWidth = (!bounds.isEmpty()) ? bounds.width() : drawable.getIntrinsicWidth();
-        final int boundsHeight = (!bounds.isEmpty()) ? bounds.height() : drawable.getIntrinsicHeight();
+        final int boundsWidth = bounds.isEmpty() ? drawable.getIntrinsicWidth() : bounds.width();
+        final int boundsHeight = bounds.isEmpty() ? drawable.getIntrinsicHeight() : bounds.height();
 
         final int bitmapWidth = (boundsWidth > 0) ? boundsWidth : 1;
         final int bitmapHeight = (boundsHeight > 0) ? boundsHeight : 1;
