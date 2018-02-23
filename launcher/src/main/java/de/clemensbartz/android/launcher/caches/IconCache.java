@@ -96,7 +96,14 @@ public final class IconCache {
      * @return an icon or <code>null</code>, if no value was saved
      */
     public synchronized BitmapDrawable getIcon(final String key) {
-        return cache.get(key);
+        final BitmapDrawable drawable = cache.get(key);
+
+        if (drawable != null && drawable.getBitmap().isRecycled()) {
+            cache.remove(key);
+            return null;
+        }
+
+        return drawable;
     }
 
     /**
