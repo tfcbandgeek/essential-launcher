@@ -23,6 +23,8 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.software.home_screen" android:required="true" />
     <uses-feature android:name="android.software.app_widgets" android:required="false" />
+    <uses-feature android:name="android.hardware.ram.low" android:required="false" />
+    <uses-feature android:name="android.hardware.ram.normal" android:required="false" />
 
     <application android:label="@string/app_name"
                  android:icon="@drawable/ic_launcher"
