@@ -16,12 +16,11 @@ Essential Launcher is a small launcher for Android. It provides a minimum of fun
 
 ## Features
 
-- Small:
-    - <30 KB APK size (without [Minify](http://developer.android.com/tools/help/proguard.html))
-    - <150 KB application size on a device
+- Small: <30 KB APK size
 - App drawer to launch, uninstall, and show information about that app.
-- Home screen with ability to add a widget.
+- Home screen with ability to add a widget or show nothing.
 - Dock with four frequently used applications.
+- Pin applications to dock.
 - Transparent background.
 - LTR as well as RTL support.
 - Accessibility enabled.
@@ -31,21 +30,19 @@ Essential Launcher is a small launcher for Android. It provides a minimum of fun
 If you want to support development, please make sure:
 
 - You use Android Studio >= 3.0.1
-- You must not enable minify.
+- You must not enable [minify](http://developer.android.com/tools/help/proguard.html)
 - You use SDK Version >= 27.
-- You specify minimum SDK Version as 21.
+- You specify minimum SDK Version as 21 (Android 5.0).
 - You use Java >= 8.
-- The maximum size for the APK is 30 KB.
-- You add your own `local.properties` file pointing to your android sdk: `sdk.dir=/opt/android-sdk-linux/`
+- The APK in Android Studio _APK Analyzer_ must be smaller than 30 KB
 
 ## Not yet supported features
 
-- Widgets are not automatically advanced.
-- Filter in Drawer
+- Widgets are not automatically advanced
 
 ## License
 
-Copyright (C) 2017 Clemens Bartz
+Copyright (C) 2018 Clemens Bartz
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
