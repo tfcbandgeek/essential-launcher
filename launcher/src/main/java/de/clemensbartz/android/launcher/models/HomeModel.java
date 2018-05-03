@@ -196,6 +196,66 @@ public final class HomeModel {
     }
 
     /**
+     * Convert an object to string.
+     * @param object the object
+     * @return a string or <code>null</code>, if the object could not be converted to a string
+     */
+    private String convertToString(final Object object) {
+        if (object instanceof String) {
+            return (String) object;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the application model.
+     * @param resources the resources to use
+     * @param iconCache the icon cache
+     * @param contentValue the content values
+     * @return an application model, or <code>null</code>, if no application was found
+     */
+    private ApplicationModel getApplicationModel(final Resources resources, final IconCache iconCache, final ContentValues contentValue) {
+        final String packageName = convertToString(contentValue.get(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME));
+        final String className = convertToString(contentValue.get(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME));
+
+        // Report back if one of them is null
+        if (packageName == null || className == null) {
+            return null;
+        }
+
+        final boolean disabled = contentValue.getAsBoolean(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED);
+        final boolean sticky = contentValue.getAsBoolean(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY);
+
+        try {
+            final ComponentName componentName = new ComponentName(packageName, className);
+            final ActivityInfo info = pm.getActivityInfo(componentName, 0);
+            if (!info.enabled) {
+                delete(packageName, className);
+            }
+            final ApplicationModel applicationModel = new ApplicationModel();
+            applicationModel.packageName = packageName;
+            applicationModel.className = className;
+            applicationModel.disabled = disabled;
+            applicationModel.sticky = sticky;
+
+            applicationModel.label = info.loadLabel(pm);
+
+            final String key = BitmapUtil.createKey(applicationModel.packageName, applicationModel.className);
+            applicationModel.icon = iconCache.getIcon(key);
+            if (applicationModel.icon == null) {
+                final BitmapDrawable bitmapDrawable = BitmapUtil.resizeDrawable(resources, info.loadIcon(pm));
+                iconCache.create(key, bitmapDrawable);
+                applicationModel.icon = bitmapDrawable;
+            }
+
+            return applicationModel;
+        } catch (final PackageManager.NameNotFoundException e) {
+            return null;
+        }
+    }
+
+    /**
      * Update the list of applications.
      * <p/>
      * This method has to be called from an async task.
@@ -207,79 +267,42 @@ public final class HomeModel {
 
         mostUsedApplications.clear();
 
-        boolean success;
+        Cursor c = null;
+        try {
+            c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
+                    COLUMNS, WHERE, null, null, null,
+                    ORDER_BY, Integer.toString(NUMBER_OF_APPS));
 
-        do {
-            success = true;
+            if (c != null) {
+                for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+                    String packageName;
+                    String className;
+                    ContentValues contentValue;
+                    try {
+                        packageName = c.getString(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME));
+                        className = c.getString(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME));
+                        boolean disabled = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED)) > 0;
+                        boolean sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
 
-            Cursor c = null;
-            try {
-                c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
-                        COLUMNS, WHERE, null, null, null,
-                        ORDER_BY, Integer.toString(NUMBER_OF_APPS));
+                        contentValue = createContentValues(packageName, className, null, disabled, sticky);
+                    } catch (IllegalArgumentException e) {
+                        continue;
+                    }
 
-                if (c != null) {
-                    for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
-                        String packageName;
-                        String className;
-                        boolean disabled;
-                        boolean sticky;
-                        try {
-                            packageName = c.getString(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME));
-                            className = c.getString(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME));
-                            disabled = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED)) > 0;
-                            sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
-                        } catch (IllegalArgumentException e) {
-                            continue;
-                        }
-                        try {
-                            final ComponentName componentName = new ComponentName(packageName, className);
-                            final ActivityInfo info = pm.getActivityInfo(componentName, 0);
-                            if (!info.enabled) {
-                                delete(packageName, className);
-                            }
-                            final ApplicationModel applicationModel = new ApplicationModel();
-                            applicationModel.packageName = packageName;
-                            applicationModel.className = className;
-                            applicationModel.disabled = disabled;
-                            applicationModel.sticky = sticky;
-
-                            // Delete null-loaded values
-                            if (canBeDeleted(packageName, className)) {
-                                return;
-                            }
-
-                            applicationModel.label = info.loadLabel(pm);
-
-                            final String key = BitmapUtil.createKey(applicationModel.packageName, applicationModel.className);
-                            applicationModel.icon = iconCache.getIcon(key);
-                            if (applicationModel.icon == null) {
-                                final BitmapDrawable bitmapDrawable = BitmapUtil.resizeDrawable(resources, info.loadIcon(pm));
-                                iconCache.create(key, bitmapDrawable);
-                                applicationModel.icon = bitmapDrawable;
-                            }
-
-                            mostUsedApplications.add(applicationModel);
-                        } catch (PackageManager.NameNotFoundException e) {
-                            /* Although Android Studio claims,
-                                these values can be null at this point!
-                             */
-                            if (canBeDeleted(packageName, className)) {
-                                return;
-                            }
-                            success = false;
-                            break;
-                        }
+                    final ApplicationModel applicationModel = getApplicationModel(resources, iconCache, contentValue);
+                    if (applicationModel == null) {
+                        canBeDeleted(packageName, className);
+                        break;
+                    } else {
+                        mostUsedApplications.add(applicationModel);
                     }
                 }
-            } catch (final IllegalArgumentException e) {
-                success = true;
-            } finally {
-                if (c != null) {
-                    c.close();
-                }
             }
-        } while (!success);
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
     }
 
     /**
