@@ -115,6 +115,7 @@ public final class BitmapUtil {
         Canvas canvas = new Canvas(bitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
+        
         return bitmap;
     }
 }
