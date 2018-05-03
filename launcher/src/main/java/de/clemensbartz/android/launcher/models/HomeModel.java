@@ -379,41 +379,7 @@ public final class HomeModel {
      * @return if the application is sticky
      */
     public boolean isSticky(final String packageName, final String className) {
-        if (packageName == null || className == null) {
-            delete(packageName, className);
-            return false;
-        }
-
-        final SQLiteDatabase db = getDatabase();
-
-        boolean sticky = false;
-
-        db.beginTransaction();
-        Cursor c = null;
-        try {
-            // Get entry
-            c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
-                    new String[]{
-                            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY
-                    },
-                    SELECTION, new String[]{packageName, className},
-                    null, null, null);
-            if (c != null) {
-                if (c.getCount() > 1) {
-                    delete(packageName, className);
-                }
-                if (c.moveToFirst()) {
-                    sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
-                }
-            }
-        } finally {
-            db.endTransaction();
-            if (c != null) {
-                c.close();
-            }
-        }
-
-        return sticky;
+        return isField(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, packageName, className);
     }
 
     /**
@@ -423,14 +389,28 @@ public final class HomeModel {
      * @return if the application is disabled
      */
     public boolean isDisabled(final String packageName, final String className) {
+        return isField(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, packageName, className);
+    }
+
+    /**
+     * Check if value of column is true.
+     * @param columnName which column in the table
+     * @param packageName the package name
+     * @param className the class name
+     * @return <code>true</code>, defaults to <code>false</code>
+     */
+    private boolean isField(final String columnName, final String packageName, final String className) {
+        // Invalid query, delete entry from database
         if (packageName == null || className == null) {
             delete(packageName, className);
             return true;
         }
 
+        // Get the database
         final SQLiteDatabase db = getDatabase();
 
-        boolean disabled = false;
+        // Default value is false
+        boolean is = false;
 
         db.beginTransaction();
         Cursor c = null;
@@ -438,16 +418,18 @@ public final class HomeModel {
             // Get entry
             c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                     new String[]{
-                            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED
+                            columnName
                     },
                     SELECTION, new String[]{packageName, className},
                     null, null, null);
             if (c != null) {
+                // Entry could not be found, delete all remaining entries
                 if (c.getCount() > 1) {
                     delete(packageName, className);
                 }
+                // Get first value
                 if (c.moveToFirst()) {
-                    disabled = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED)) > 0;
+                    is = c.getInt(c.getColumnIndexOrThrow(columnName)) > 0;
                 }
             }
         } finally {
@@ -457,7 +439,7 @@ public final class HomeModel {
             }
         }
 
-        return disabled;
+        return is;
     }
 
     /**
