@@ -217,8 +217,8 @@ public final class HomeModel {
                             applicationModel.sticky = sticky;
 
                             // Delete null-loaded values
-                            if (packageName == null || className == null) {
-                                delete(packageName, className);
+                            if (canBeDeleted(packageName, className)) {
+                                return;
                             }
 
                             applicationModel.label = info.loadLabel(pm);
@@ -236,8 +236,8 @@ public final class HomeModel {
                             /* Although Android Studio claims,
                                 these values can be null at this point!
                              */
-                            if (packageName != null && className != null) {
-                                delete(packageName, className);
+                            if (canBeDeleted(packageName, className)) {
+                                return;
                             }
                             success = false;
                             break;
@@ -260,8 +260,8 @@ public final class HomeModel {
      * @param className the class name
      */
     public void toggleSticky(final String packageName, final String className) {
-        if (packageName == null || className == null) {
-            delete(packageName, className);
+        // Check for deletion
+        if (canBeDeleted(packageName, className)) {
             return;
         }
 
@@ -319,8 +319,8 @@ public final class HomeModel {
      * @param className the class name
      */
     public void toggleDisabled(final String packageName, final String className) {
-        if (packageName == null || className == null) {
-            delete(packageName, className);
+        // Check for deletion
+        if (canBeDeleted(packageName, className)) {
             return;
         }
 
@@ -400,10 +400,9 @@ public final class HomeModel {
      * @return <code>true</code>, defaults to <code>false</code>
      */
     private boolean isField(final String columnName, final String packageName, final String className) {
-        // Invalid query, delete entry from database
-        if (packageName == null || className == null) {
-            delete(packageName, className);
-            return true;
+        // Check for deletion
+        if (canBeDeleted(packageName, className)) {
+            return false;
         }
 
         // Get the database
@@ -507,8 +506,8 @@ public final class HomeModel {
      * @param iconCache the icon cache to get the icons from
      */
     public void addUsage(final String packageName, final String className, final Resources resources, final IconCache iconCache) {
-        if (packageName == null || className == null) {
-            delete(packageName, className);
+        // Check for deletion
+        if (canBeDeleted(packageName, className)) {
             return;
         }
 
@@ -565,6 +564,21 @@ public final class HomeModel {
         }
 
         updateApplications(resources, iconCache);
+    }
+
+    /**
+     * Check if an app can be deleted.
+     * @param packageName the package name
+     * @param className the class name
+     * @return true if it can, otherwise false
+     */
+    private boolean canBeDeleted(final String packageName, final String className) {
+        if (packageName == null || className == null) {
+            delete(packageName, className);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
