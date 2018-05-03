@@ -125,6 +125,34 @@ public final class HomeModel {
         return instance;
     }
 
+    /**
+     * Create a pair of content values for a package, a package, the usage, if it is disabled
+     * or sticky.
+     * @param packageName the name of the package
+     * @param className the name of the class
+     * @param usage the usage
+     * @param disabled the disabled state
+     * @param sticky the sticky state
+     * @return the content value pair
+     */
+    private static ContentValues createContentValues(final String packageName, final String className, final Integer usage, final Boolean disabled, final Boolean sticky) {
+        final ContentValues values = new ContentValues(5);
+
+        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
+        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
+        if (sticky != null) {
+            values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, sticky);
+        }
+        if (disabled != null) {
+            values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, disabled);
+        }
+        if (usage != null) {
+            values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, usage);
+        }
+
+        return values;
+    }
+
 
     /**
      * Create a new model in a context.
@@ -284,22 +312,14 @@ public final class HomeModel {
                 if (c.moveToFirst()) {
                     final boolean sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
                     // update
-                    final ContentValues values = new ContentValues(3);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, !sticky);
+                    final ContentValues values = createContentValues(packageName, className, null, null, !sticky);
 
                     db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                             values, SELECTION, new String[]{packageName, className});
                     db.setTransactionSuccessful();
                 } else {
                     // insert
-                    final ContentValues values = new ContentValues(4);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, false);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, true);
+                    final ContentValues values = createContentValues(className, packageName, 0, false, true);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
@@ -343,22 +363,14 @@ public final class HomeModel {
                 if (c.moveToFirst()) {
                     final boolean disabled = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED)) > 0;
                     // update
-                    final ContentValues values = new ContentValues(3);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, !disabled);
+                    final ContentValues values = createContentValues(packageName, className, null, !disabled, null);
 
                     db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                             values, SELECTION, new String[]{packageName, className});
                     db.setTransactionSuccessful();
                 } else {
                     // insert
-                    final ContentValues values = new ContentValues(4);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, true);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, false);
+                    final ContentValues values = createContentValues(className, packageName, 0, false, true);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
@@ -467,22 +479,14 @@ public final class HomeModel {
                 }
                 if (c.moveToFirst()) {
                     // update
-                    final ContentValues values = new ContentValues(3);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
+                    final ContentValues values = createContentValues(packageName, className, 0, null, null);
 
                     db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                             values, SELECTION, new String[]{packageName, className});
                     db.setTransactionSuccessful();
                 } else {
                     // insert
-                    final ContentValues values = new ContentValues(4);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, false);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, false);
+                    final ContentValues values = createContentValues(packageName, className, 0, false, false);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
@@ -532,10 +536,7 @@ public final class HomeModel {
                     final int usage = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE));
 
                     if (usage < Integer.MAX_VALUE) {
-                        final ContentValues values = new ContentValues(3);
-                        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, usage + 1);
+                        final ContentValues values = createContentValues(packageName, className, usage + 1, null, null);
 
                         db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                                 values, SELECTION, new String[]{packageName, className});
@@ -545,12 +546,7 @@ public final class HomeModel {
                     }
                 } else {
                     // insert
-                    final ContentValues values = new ContentValues(4);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 1);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, false);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, false);
+                    final ContentValues values = createContentValues(packageName, className, 1, false, false);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
