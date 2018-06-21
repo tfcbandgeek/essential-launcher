@@ -33,6 +33,7 @@ If you want to support development, please make sure:
 - You must not enable [minify](http://developer.android.com/tools/help/proguard.html)
 - You use SDK Version >= 27.
 - You specify minimum SDK Version as 21 (Android 5.0).
+- You specify maximum SDK Version as 27 (Android 8.1 Go).
 - You use Java >= 8.
 - The APK in Android Studio _APK Analyzer_ must be smaller than 30 KB
 
