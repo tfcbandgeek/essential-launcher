@@ -393,7 +393,7 @@ public final class HomeModel {
                     db.setTransactionSuccessful();
                 } else {
                     // insert
-                    final ContentValues values = createContentValues(className, packageName, 0, false, true);
+                    final ContentValues values = createContentValues(className, packageName, 0, true, false);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
