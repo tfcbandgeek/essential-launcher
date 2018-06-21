@@ -31,7 +31,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.drawable.BitmapDrawable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.clemensbartz.android.launcher.caches.IconCache;
 import de.clemensbartz.android.launcher.db.ApplicationUsageDbHelper;
@@ -231,7 +233,7 @@ public final class HomeModel {
             final ComponentName componentName = new ComponentName(packageName, className);
             final ActivityInfo info = pm.getActivityInfo(componentName, 0);
             if (!info.enabled) {
-                delete(packageName, className);
+                return null;
             }
             final ApplicationModel applicationModel = new ApplicationModel();
             applicationModel.packageName = packageName;
@@ -263,6 +265,8 @@ public final class HomeModel {
      * @param iconCache the icon cache to get the icons from
      */
     public void updateApplications(final Resources resources, final IconCache iconCache) {
+        final Map<String, String> applicationsToBeDeleted = new HashMap<>();
+
         final SQLiteDatabase db = getDatabase();
 
         mostUsedApplications.clear();
@@ -291,7 +295,7 @@ public final class HomeModel {
 
                     final ApplicationModel applicationModel = getApplicationModel(resources, iconCache, contentValue);
                     if (applicationModel == null) {
-                        canBeDeleted(packageName, className);
+                        applicationsToBeDeleted.put(packageName, className);
                         break;
                     } else {
                         mostUsedApplications.add(applicationModel);
@@ -302,6 +306,11 @@ public final class HomeModel {
             if (c != null) {
                 c.close();
             }
+        }
+
+        // Delete old applications
+        for (Map.Entry<String, String> entry : applicationsToBeDeleted.entrySet()) {
+            delete(entry.getKey(), entry.getValue());
         }
     }
 
