@@ -31,7 +31,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.drawable.BitmapDrawable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.clemensbartz.android.launcher.caches.IconCache;
 import de.clemensbartz.android.launcher.db.ApplicationUsageDbHelper;
@@ -125,6 +127,34 @@ public final class HomeModel {
         return instance;
     }
 
+    /**
+     * Create a pair of content values for a package, a package, the usage, if it is disabled
+     * or sticky.
+     * @param packageName the name of the package
+     * @param className the name of the class
+     * @param usage the usage
+     * @param disabled the disabled state
+     * @param sticky the sticky state
+     * @return the content value pair
+     */
+    private static ContentValues createContentValues(final String packageName, final String className, final Integer usage, final Boolean disabled, final Boolean sticky) {
+        final ContentValues values = new ContentValues(5);
+
+        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
+        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
+        if (sticky != null) {
+            values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, sticky);
+        }
+        if (disabled != null) {
+            values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, disabled);
+        }
+        if (usage != null) {
+            values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, usage);
+        }
+
+        return values;
+    }
+
 
     /**
      * Create a new model in a context.
@@ -168,6 +198,66 @@ public final class HomeModel {
     }
 
     /**
+     * Convert an object to string.
+     * @param object the object
+     * @return a string or <code>null</code>, if the object could not be converted to a string
+     */
+    private String convertToString(final Object object) {
+        if (object instanceof String) {
+            return (String) object;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the application model.
+     * @param resources the resources to use
+     * @param iconCache the icon cache
+     * @param contentValue the content values
+     * @return an application model, or <code>null</code>, if no application was found
+     */
+    private ApplicationModel getApplicationModel(final Resources resources, final IconCache iconCache, final ContentValues contentValue) {
+        final String packageName = convertToString(contentValue.get(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME));
+        final String className = convertToString(contentValue.get(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME));
+
+        // Report back if one of them is null
+        if (packageName == null || className == null) {
+            return null;
+        }
+
+        final boolean disabled = contentValue.getAsBoolean(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED);
+        final boolean sticky = contentValue.getAsBoolean(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY);
+
+        try {
+            final ComponentName componentName = new ComponentName(packageName, className);
+            final ActivityInfo info = pm.getActivityInfo(componentName, 0);
+            if (!info.enabled) {
+                return null;
+            }
+            final ApplicationModel applicationModel = new ApplicationModel();
+            applicationModel.packageName = packageName;
+            applicationModel.className = className;
+            applicationModel.disabled = disabled;
+            applicationModel.sticky = sticky;
+
+            applicationModel.label = info.loadLabel(pm);
+
+            final String key = BitmapUtil.createKey(applicationModel.packageName, applicationModel.className);
+            applicationModel.icon = iconCache.getIcon(key);
+            if (applicationModel.icon == null) {
+                final BitmapDrawable bitmapDrawable = BitmapUtil.resizeDrawable(resources, info.loadIcon(pm));
+                iconCache.create(key, bitmapDrawable);
+                applicationModel.icon = bitmapDrawable;
+            }
+
+            return applicationModel;
+        } catch (final PackageManager.NameNotFoundException e) {
+            return null;
+        }
+    }
+
+    /**
      * Update the list of applications.
      * <p/>
      * This method has to be called from an async task.
@@ -175,83 +265,53 @@ public final class HomeModel {
      * @param iconCache the icon cache to get the icons from
      */
     public void updateApplications(final Resources resources, final IconCache iconCache) {
+        final Map<String, String> applicationsToBeDeleted = new HashMap<>();
+
         final SQLiteDatabase db = getDatabase();
 
         mostUsedApplications.clear();
 
-        boolean success;
+        Cursor c = null;
+        try {
+            c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
+                    COLUMNS, WHERE, null, null, null,
+                    ORDER_BY, Integer.toString(NUMBER_OF_APPS));
 
-        do {
-            success = true;
+            if (c != null) {
+                for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+                    String packageName;
+                    String className;
+                    ContentValues contentValue;
+                    try {
+                        packageName = c.getString(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME));
+                        className = c.getString(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME));
+                        boolean disabled = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED)) > 0;
+                        boolean sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
 
-            Cursor c = null;
-            try {
-                c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
-                        COLUMNS, WHERE, null, null, null,
-                        ORDER_BY, Integer.toString(NUMBER_OF_APPS));
+                        contentValue = createContentValues(packageName, className, null, disabled, sticky);
+                    } catch (IllegalArgumentException e) {
+                        continue;
+                    }
 
-                if (c != null) {
-                    for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
-                        String packageName;
-                        String className;
-                        boolean disabled;
-                        boolean sticky;
-                        try {
-                            packageName = c.getString(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME));
-                            className = c.getString(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME));
-                            disabled = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED)) > 0;
-                            sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
-                        } catch (IllegalArgumentException e) {
-                            continue;
-                        }
-                        try {
-                            final ComponentName componentName = new ComponentName(packageName, className);
-                            final ActivityInfo info = pm.getActivityInfo(componentName, 0);
-                            if (!info.enabled) {
-                                delete(packageName, className);
-                            }
-                            final ApplicationModel applicationModel = new ApplicationModel();
-                            applicationModel.packageName = packageName;
-                            applicationModel.className = className;
-                            applicationModel.disabled = disabled;
-                            applicationModel.sticky = sticky;
-
-                            // Delete null-loaded values
-                            if (packageName == null || className == null) {
-                                delete(packageName, className);
-                            }
-
-                            applicationModel.label = info.loadLabel(pm);
-
-                            final String key = BitmapUtil.createKey(applicationModel.packageName, applicationModel.className);
-                            applicationModel.icon = iconCache.getIcon(key);
-                            if (applicationModel.icon == null) {
-                                final BitmapDrawable bitmapDrawable = BitmapUtil.resizeDrawable(resources, info.loadIcon(pm));
-                                iconCache.create(key, bitmapDrawable);
-                                applicationModel.icon = bitmapDrawable;
-                            }
-
-                            mostUsedApplications.add(applicationModel);
-                        } catch (PackageManager.NameNotFoundException e) {
-                            /* Although Android Studio claims,
-                                these values can be null at this point!
-                             */
-                            if (packageName != null && className != null) {
-                                delete(packageName, className);
-                            }
-                            success = false;
-                            break;
-                        }
+                    final ApplicationModel applicationModel = getApplicationModel(resources, iconCache, contentValue);
+                    if (applicationModel == null) {
+                        applicationsToBeDeleted.put(packageName, className);
+                        break;
+                    } else {
+                        mostUsedApplications.add(applicationModel);
                     }
                 }
-            } catch (final IllegalArgumentException e) {
-                success = true;
-            } finally {
-                if (c != null) {
-                    c.close();
-                }
             }
-        } while (!success);
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+
+        // Delete old applications
+        for (Map.Entry<String, String> entry : applicationsToBeDeleted.entrySet()) {
+            delete(entry.getKey(), entry.getValue());
+        }
     }
 
     /**
@@ -260,8 +320,8 @@ public final class HomeModel {
      * @param className the class name
      */
     public void toggleSticky(final String packageName, final String className) {
-        if (packageName == null || className == null) {
-            delete(packageName, className);
+        // Check for deletion
+        if (canBeDeleted(packageName, className)) {
             return;
         }
 
@@ -284,22 +344,14 @@ public final class HomeModel {
                 if (c.moveToFirst()) {
                     final boolean sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
                     // update
-                    final ContentValues values = new ContentValues(3);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, !sticky);
+                    final ContentValues values = createContentValues(packageName, className, null, null, !sticky);
 
                     db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                             values, SELECTION, new String[]{packageName, className});
                     db.setTransactionSuccessful();
                 } else {
                     // insert
-                    final ContentValues values = new ContentValues(4);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, false);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, true);
+                    final ContentValues values = createContentValues(packageName, className, 0, false, true);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
@@ -319,8 +371,8 @@ public final class HomeModel {
      * @param className the class name
      */
     public void toggleDisabled(final String packageName, final String className) {
-        if (packageName == null || className == null) {
-            delete(packageName, className);
+        // Check for deletion
+        if (canBeDeleted(packageName, className)) {
             return;
         }
 
@@ -343,22 +395,14 @@ public final class HomeModel {
                 if (c.moveToFirst()) {
                     final boolean disabled = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED)) > 0;
                     // update
-                    final ContentValues values = new ContentValues(3);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, !disabled);
+                    final ContentValues values = createContentValues(packageName, className, null, !disabled, null);
 
                     db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                             values, SELECTION, new String[]{packageName, className});
                     db.setTransactionSuccessful();
                 } else {
                     // insert
-                    final ContentValues values = new ContentValues(4);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, true);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, false);
+                    final ContentValues values = createContentValues(packageName, className, 0, true, false);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
@@ -379,41 +423,7 @@ public final class HomeModel {
      * @return if the application is sticky
      */
     public boolean isSticky(final String packageName, final String className) {
-        if (packageName == null || className == null) {
-            delete(packageName, className);
-            return false;
-        }
-
-        final SQLiteDatabase db = getDatabase();
-
-        boolean sticky = false;
-
-        db.beginTransaction();
-        Cursor c = null;
-        try {
-            // Get entry
-            c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
-                    new String[]{
-                            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY
-                    },
-                    SELECTION, new String[]{packageName, className},
-                    null, null, null);
-            if (c != null) {
-                if (c.getCount() > 1) {
-                    delete(packageName, className);
-                }
-                if (c.moveToFirst()) {
-                    sticky = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY)) > 0;
-                }
-            }
-        } finally {
-            db.endTransaction();
-            if (c != null) {
-                c.close();
-            }
-        }
-
-        return sticky;
+        return isField(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, packageName, className);
     }
 
     /**
@@ -423,14 +433,27 @@ public final class HomeModel {
      * @return if the application is disabled
      */
     public boolean isDisabled(final String packageName, final String className) {
-        if (packageName == null || className == null) {
-            delete(packageName, className);
-            return true;
+        return isField(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, packageName, className);
+    }
+
+    /**
+     * Check if value of column is true.
+     * @param columnName which column in the table
+     * @param packageName the package name
+     * @param className the class name
+     * @return <code>true</code>, defaults to <code>false</code>
+     */
+    private boolean isField(final String columnName, final String packageName, final String className) {
+        // Check for deletion
+        if (canBeDeleted(packageName, className)) {
+            return false;
         }
 
+        // Get the database
         final SQLiteDatabase db = getDatabase();
 
-        boolean disabled = false;
+        // Default value is false
+        boolean is = false;
 
         db.beginTransaction();
         Cursor c = null;
@@ -438,16 +461,18 @@ public final class HomeModel {
             // Get entry
             c = db.query(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                     new String[]{
-                            ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED
+                            columnName
                     },
                     SELECTION, new String[]{packageName, className},
                     null, null, null);
             if (c != null) {
+                // Entry could not be found, delete all remaining entries
                 if (c.getCount() > 1) {
                     delete(packageName, className);
                 }
+                // Get first value
                 if (c.moveToFirst()) {
-                    disabled = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED)) > 0;
+                    is = c.getInt(c.getColumnIndexOrThrow(columnName)) > 0;
                 }
             }
         } finally {
@@ -457,7 +482,7 @@ public final class HomeModel {
             }
         }
 
-        return disabled;
+        return is;
     }
 
     /**
@@ -486,22 +511,14 @@ public final class HomeModel {
                 }
                 if (c.moveToFirst()) {
                     // update
-                    final ContentValues values = new ContentValues(3);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
+                    final ContentValues values = createContentValues(packageName, className, 0, null, null);
 
                     db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                             values, SELECTION, new String[]{packageName, className});
                     db.setTransactionSuccessful();
                 } else {
                     // insert
-                    final ContentValues values = new ContentValues(4);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 0);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, false);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, false);
+                    final ContentValues values = createContentValues(packageName, className, 0, false, false);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
@@ -525,8 +542,8 @@ public final class HomeModel {
      * @param iconCache the icon cache to get the icons from
      */
     public void addUsage(final String packageName, final String className, final Resources resources, final IconCache iconCache) {
-        if (packageName == null || className == null) {
-            delete(packageName, className);
+        // Check for deletion
+        if (canBeDeleted(packageName, className)) {
             return;
         }
 
@@ -551,10 +568,7 @@ public final class HomeModel {
                     final int usage = c.getInt(c.getColumnIndexOrThrow(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE));
 
                     if (usage < Integer.MAX_VALUE) {
-                        final ContentValues values = new ContentValues(3);
-                        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                        values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, usage + 1);
+                        final ContentValues values = createContentValues(packageName, className, usage + 1, null, null);
 
                         db.update(ApplicationUsageModel.ApplicationUsage.TABLE_NAME,
                                 values, SELECTION, new String[]{packageName, className});
@@ -564,12 +578,7 @@ public final class HomeModel {
                     }
                 } else {
                     // insert
-                    final ContentValues values = new ContentValues(4);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME, className);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME, packageName);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_USAGE, 1);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_DISABLED, false);
-                    values.put(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_STICKY, false);
+                    final ContentValues values = createContentValues(packageName, className, 1, false, false);
 
                     db.insertOrThrow(ApplicationUsageModel.ApplicationUsage.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
@@ -583,6 +592,21 @@ public final class HomeModel {
         }
 
         updateApplications(resources, iconCache);
+    }
+
+    /**
+     * Check if an app can be deleted.
+     * @param packageName the package name
+     * @param className the class name
+     * @return true if it can, otherwise false
+     */
+    private boolean canBeDeleted(final String packageName, final String className) {
+        if (packageName == null || className == null) {
+            delete(packageName, className);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
