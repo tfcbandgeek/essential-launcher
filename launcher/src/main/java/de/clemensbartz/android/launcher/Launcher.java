@@ -772,7 +772,14 @@ public final class Launcher extends Activity {
                 final String key = BitmapUtil.createKey(applicationModel.packageName, applicationModel.className);
                 applicationModel.icon = iconCache.getIcon(key);
                 if (applicationModel.icon == null) {
-                    final BitmapDrawable bitmapDrawable = BitmapUtil.resizeDrawable(getResources(), resolveInfo.loadIcon(pm));
+                    // Contrary to the JavaDoc, this call can return null (e. g. on Huawei Nexus 6P (angler)
+                    Drawable drawable = resolveInfo.loadIcon(pm);
+                    if (drawable == null) {
+                        // If none is found, assign our own icon
+                        drawable = iconCache.getIcon(IconCache.IC_LAUNCHER_KEY);
+                    }
+
+                    final BitmapDrawable bitmapDrawable = BitmapUtil.resizeDrawable(getResources(), drawable);
                     iconCache.create(key, bitmapDrawable);
                     applicationModel.icon = bitmapDrawable;
                 }
