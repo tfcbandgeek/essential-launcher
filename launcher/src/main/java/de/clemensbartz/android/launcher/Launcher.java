@@ -40,6 +40,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.StrictMode;
+import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -157,6 +158,7 @@ public final class Launcher extends Activity {
     private final BroadcastReceiver packageChangedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
+            Log.d("Launcher", intent.getAction());
             iconCache.invalidate();
             updateApplications();
         }
@@ -350,6 +352,10 @@ public final class Launcher extends Activity {
             switch (item.getItemId()) {
 
                 case ITEM_REMOVE_WIDGET:
+                    // Reset layout
+                    model.setKeyAppwidgetLayout(WIDGET_LAYOUT_FULL_SCREEN);
+                    adjustWidget(WIDGET_LAYOUT_FULL_SCREEN);
+                    // Remove widget
                     createWidget(new Intent());
                     break;
                 case ITEM_CHOOSE_WIDGET:
