@@ -497,7 +497,7 @@ public final class Launcher extends Activity {
         final ViewGroup.LayoutParams bottomLayout = vBottomFiller.getLayoutParams();
         final ViewGroup.LayoutParams topLayout = vTopFiller.getLayoutParams();
 
-        final int screenHeightDp = getResources().getConfiguration().screenHeightDp;
+        final int screenHeightDp = vsLauncher.getHeight();
 
         // Check for consistent values
         if (screenHeightDp == Configuration.SCREEN_HEIGHT_DP_UNDEFINED) {
