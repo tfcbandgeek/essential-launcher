@@ -28,4 +28,13 @@
     <string name="remove_widget">Remove widget</string>
     <string name="choose_widget">Choose widget</string>
     <string name="showInDockSticky">Make sticky</string>
+    <string name="adjustWidgetLayout" translatable="false">Layout widget...</string>
+    <string name="widgetLayoutTopQuarter" translatable="false">Top 1/4</string>
+    <string name="widgetLayoutTopThird" translatable="false">Top 1/3</string>
+    <string name="widgetLayoutTopHalf" translatable="false">Top 1/2</string>
+    <string name="widgetLayoutFull" translatable="false">Full Screen</string>
+    <string name="widgetLayoutCenter" translatable="false">Center 1/2</string>
+    <string name="widgetLayoutBottomHalf" translatable="false">Bottom 1/2</string>
+    <string name="widgetLayoutBottomThird" translatable="false">Bottom 1/3</string>
+    <string name="widgetLayoutBottomQuarter" translatable="false">Bottom 1/4</string>
 </resources>

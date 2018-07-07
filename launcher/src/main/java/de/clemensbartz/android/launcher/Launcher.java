@@ -31,6 +31,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -39,13 +40,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.StrictMode;
+import android.util.Pair;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ViewSwitcher;
 
 import java.util.ArrayList;
@@ -67,6 +72,18 @@ import de.clemensbartz.android.launcher.util.IntentUtil;
  * @since 1.0
  */
 public final class Launcher extends Activity {
+
+    /** A quarter. */
+    private static final double QUARTER = 0.25;
+    /** A half. */
+    private static final double HALF = 0.5;
+    /** Three quarter. */
+    private static final double THREE_QUARTER = 0.75;
+    /** Two third. */
+    private static final double TWO_THIRD = 0.66;
+
+    /** Default height in dp of the dock. */
+    private static final int DOCK_HEIGHT = 60;
 
     /** Id to identify the home layout. */
     private static final int HOME_ID = 0;
@@ -91,11 +108,35 @@ public final class Launcher extends Activity {
     private static final int ITEM_CHOOSE_WIDGET = 6;
     /** Request code for toggle sticky app. */
     private static final int ITEM_TOGGLE_STICKY = 7;
+    /** Request code for layouting widget. */
+    private static final int ITEM_LAYOUT_WIDGET = 8;
+
+    // Layout constants for widget
+    /** Layout constant for default full screen layout. */
+    public static final int WIDGET_LAYOUT_FULL_SCREEN = -1;
+    /** Layout constant for top half widget. */
+    private static final int WIDGET_LAYOUT_TOP_QUARTER = 0;
+    /** Layout constant for top third widget. */
+    private static final int WIDGET_LAYOUT_TOP_THIRD = 5;
+    /** Layout constant for top half widget. */
+    private static final int WIDGET_LAYOUT_TOP_HALF = 10;
+    /** Layout constant for center widget reduced. */
+    private static final int WIDGET_LAYOUT_CENTER = 15;
+    /** Layout constant for bottom half widget. */
+    private static final int WIDGET_LAYOUT_BOTTOM_HALF = 20;
+    /** Layout constant for bottom third widget. */
+    private static final int WIDGET_LAYOUT_BOTTOM_THIRD = 25;
+    /** Layout constant for bottom quarter widget. */
+    private static final int WIDGET_LAYOUT_BOTTOM_QUARTER = 30;
 
     /** The view switcher of the launcher. */
     private ViewSwitcher vsLauncher;
     /** The view for holding the widget. */
     private FrameLayout frWidget;
+    /** The view for holding the widget filler for top. */
+    private View vTopFiller;
+    /** The view for holding the widget filler for bottom. */
+    private View vBottomFiller;
     /** The views for launching the most used apps. */
     private final List<ImageView> dockImageViews = new ArrayList<>(HomeModel.NUMBER_OF_APPS);
 
@@ -153,6 +194,8 @@ public final class Launcher extends Activity {
          */
         vsLauncher = findViewById(R.id.vsLauncher);
         frWidget = findViewById(R.id.frWidget);
+        vTopFiller = findViewById(R.id.topFiller);
+        vBottomFiller = findViewById(R.id.bottomFiller);
 
         final GridView lvApplications = findViewById(R.id.lvApplications);
         final ImageView ivDrawer = findViewById(R.id.ivDrawer);
@@ -310,12 +353,44 @@ public final class Launcher extends Activity {
                     startActivityForResult(pickIntent, REQUEST_PICK_APPWIDGET);
 
                     break;
+                case ITEM_LAYOUT_WIDGET:
+                    final PopupMenu popupMenu = new PopupMenu(this, vTopFiller);
+
+                    final int currentLayout = model.getAppWidgetLayout();
+
+                    addLayoutPopupMenuItem(popupMenu, WIDGET_LAYOUT_FULL_SCREEN, currentLayout, R.string.widgetLayoutFull);
+                    addLayoutPopupMenuItem(popupMenu, WIDGET_LAYOUT_TOP_QUARTER, currentLayout, R.string.widgetLayoutTopQuarter);
+                    addLayoutPopupMenuItem(popupMenu, WIDGET_LAYOUT_TOP_THIRD, currentLayout, R.string.widgetLayoutTopThird);
+                    addLayoutPopupMenuItem(popupMenu, WIDGET_LAYOUT_TOP_HALF, currentLayout, R.string.widgetLayoutTopHalf);
+                    addLayoutPopupMenuItem(popupMenu, WIDGET_LAYOUT_CENTER, currentLayout, R.string.widgetLayoutCenter);
+                    addLayoutPopupMenuItem(popupMenu, WIDGET_LAYOUT_BOTTOM_HALF, currentLayout, R.string.widgetLayoutBottomHalf);
+                    addLayoutPopupMenuItem(popupMenu, WIDGET_LAYOUT_BOTTOM_THIRD, currentLayout, R.string.widgetLayoutBottomThird);
+                    addLayoutPopupMenuItem(popupMenu, WIDGET_LAYOUT_BOTTOM_QUARTER, currentLayout, R.string.widgetLayoutBottomQuarter);
+
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            model.setKeyAppwidgetLayout(item.getItemId());
+                            adjustWidget(item.getItemId());
+                            return true;
+                        }
+                    });
+
+                    popupMenu.show();
+
+                    break;
                 default:
                     break;
             }
         }
 
         return false;
+    }
+
+    private void addLayoutPopupMenuItem(final PopupMenu popupMenu, final int widgetLayout, final int currentLayout, final int resourceId) {
+        final MenuItem menuItem = popupMenu.getMenu().add(0, widgetLayout, 0, resourceId);
+        menuItem.setCheckable(true);
+        menuItem.setChecked(currentLayout == widgetLayout);
     }
 
     @Override
@@ -413,6 +488,72 @@ public final class Launcher extends Activity {
 
         model.setAppWidgetId(appWidgetId);
         addHostView(appWidgetId);
+    }
+
+    /**
+     * Adjust widget layout according to layout id.
+     * @param appWidgetLayout the layout id.
+     */
+    private void adjustWidget(final int appWidgetLayout) {
+        final ViewGroup.LayoutParams bottomLayout = vBottomFiller.getLayoutParams();
+        final ViewGroup.LayoutParams topLayout = vTopFiller.getLayoutParams();
+
+        final int screenHeightDp = getResources().getConfiguration().screenHeightDp;
+
+        // Check for consistent values
+        if (screenHeightDp == Configuration.SCREEN_HEIGHT_DP_UNDEFINED) {
+            bottomLayout.height = 0;
+            topLayout.height = 0;
+            return;
+        }
+
+        final double height = screenHeightDp - DOCK_HEIGHT;
+
+        // Check for enough space to accommodate another dock
+        if (height - DOCK_HEIGHT <= 0) {
+            bottomLayout.height = 0;
+            topLayout.height = 0;
+            return;
+        }
+
+        double preciseBottomHeight = 0;
+        double preciseTopHeight = 0;
+
+        switch (appWidgetLayout) {
+            case WIDGET_LAYOUT_TOP_QUARTER: // widget in top 1/4
+                preciseBottomHeight = height * THREE_QUARTER;
+                break;
+            case WIDGET_LAYOUT_TOP_THIRD: // widget in top 1/3
+                preciseBottomHeight = height * TWO_THIRD;
+                break;
+            case WIDGET_LAYOUT_TOP_HALF: // widget in top 1/2
+                preciseBottomHeight = height * HALF;
+                break;
+            case WIDGET_LAYOUT_CENTER: // widget center with height adjusted
+                preciseBottomHeight = height * QUARTER;
+                preciseTopHeight = preciseBottomHeight;
+                break;
+            case WIDGET_LAYOUT_BOTTOM_HALF: // widget in bottom 1/2
+                preciseTopHeight = height * HALF;
+                break;
+            case WIDGET_LAYOUT_BOTTOM_THIRD: // widget in bottom 1/3
+                preciseTopHeight = height * TWO_THIRD;
+                break;
+            case WIDGET_LAYOUT_BOTTOM_QUARTER: // widget in bottom 1/4
+                preciseTopHeight = height * THREE_QUARTER;
+                break;
+            default: // default: -1
+                break;
+        }
+
+        bottomLayout.height = (int) Math.round(preciseBottomHeight);
+        vBottomFiller.requestLayout();
+
+        topLayout.height = (int) Math.round(preciseTopHeight);
+        vTopFiller.requestLayout();
+
+
+
     }
 
     /**
@@ -599,6 +740,7 @@ public final class Launcher extends Activity {
         public void onCreateContextMenu(final ContextMenu contextMenu, final View view, final ContextMenu.ContextMenuInfo contextMenuInfo) {
             contextMenu.add(0, ITEM_CHOOSE_WIDGET, 0, R.string.choose_widget);
             if (model.getAppWidgetId() != -1) {
+                contextMenu.add(0, ITEM_LAYOUT_WIDGET, 0, R.string.adjustWidgetLayout);
                 contextMenu.add(0, ITEM_REMOVE_WIDGET, 0, R.string.remove_widget);
             }
         }
@@ -712,20 +854,23 @@ public final class Launcher extends Activity {
     /**
      * Async task for loading the model on start.
      */
-    private class LoadModelAsyncTask extends AsyncTask<Integer, Integer, Integer> {
+    private class LoadModelAsyncTask extends AsyncTask<Integer, Integer, Pair<Integer, Integer>> {
         @Override
-        protected Integer doInBackground(final Integer... params) {
+        protected Pair<Integer, Integer> doInBackground(final Integer... params) {
             model.loadValues(getResources(), iconCache);
 
-            return model.getAppWidgetId();
+            return new Pair<>(model.getAppWidgetId(), model.getAppWidgetLayout());
         }
 
         @Override
-        protected void onPostExecute(final Integer result) {
+        protected void onPostExecute(final Pair<Integer, Integer> result) {
             // Show last selected widget.
-            if (result > -1) {
-                addHostView(result);
+            if (result.first > -1) {
+                addHostView(result.first);
             }
+
+            // Layout widget
+            adjustWidget(result.second);
         }
     }
 

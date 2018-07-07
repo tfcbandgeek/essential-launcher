@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.clemensbartz.android.launcher.Launcher;
 import de.clemensbartz.android.launcher.caches.IconCache;
 import de.clemensbartz.android.launcher.db.ApplicationUsageDbHelper;
 import de.clemensbartz.android.launcher.db.ApplicationUsageModel;
@@ -111,8 +112,13 @@ public final class HomeModel {
     ///** Key for the hide overlay property. */
     //This key has been removed as of version 1.3.
     //private static final String KEY_HIDE_OVERLAY_ID = "hideOverlay";
+    /** Key for the appWidgetLayout property. */
+    private static final String KEY_APPWIDGET_LAYOUT = "appWidgetLayout";
+
     /** Value for the appWidgetId property. */
     private int appWidgetId = -1;
+    /** Value for the appWidgetLayout property. */
+    private int appWidgetLayout = Launcher.WIDGET_LAYOUT_FULL_SCREEN;
 
     /**
      *
@@ -187,6 +193,7 @@ public final class HomeModel {
         updateApplications(resources, iconCache);
 
         appWidgetId = preferences.getInt(KEY_APPWIDGET_ID, -1);
+        appWidgetLayout = preferences.getInt(KEY_APPWIDGET_LAYOUT, Launcher.WIDGET_LAYOUT_FULL_SCREEN);
     }
 
     /**
@@ -635,6 +642,23 @@ public final class HomeModel {
     public void setAppWidgetId(final int appWidgetId) {
         preferences.edit().putInt(KEY_APPWIDGET_ID, appWidgetId).apply();
         this.appWidgetId = appWidgetId;
+    }
+
+    /**
+     *
+     * @return the current layout status
+     */
+    public int getAppWidgetLayout() {
+        return appWidgetLayout;
+    }
+
+    /**
+     * Set the layout for the app widget.
+     * @param appWidgetLayout the layout for the app widget
+     */
+    public void setKeyAppwidgetLayout(final int appWidgetLayout) {
+        preferences.edit().putInt(KEY_APPWIDGET_LAYOUT, appWidgetLayout).apply();
+        this.appWidgetLayout = appWidgetLayout;
     }
 
 }
