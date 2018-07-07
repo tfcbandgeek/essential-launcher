@@ -42,7 +42,6 @@ import android.os.Parcelable;
 import android.os.StrictMode;
 import android.util.Pair;
 import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
