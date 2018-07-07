@@ -40,7 +40,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.StrictMode;
-import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -158,7 +157,6 @@ public final class Launcher extends Activity {
     private final BroadcastReceiver packageChangedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
-            Log.d("Launcher", intent.getAction());
             iconCache.invalidate();
             updateApplications();
         }
