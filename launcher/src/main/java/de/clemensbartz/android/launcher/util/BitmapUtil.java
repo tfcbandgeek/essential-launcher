@@ -37,9 +37,6 @@ public final class BitmapUtil {
     /** The default separator. */
     private static final String SEPARATOR = "&";
 
-    /** The default dp. */
-    private static final int DEFAULT_DP = 60;
-
     /**
      * Hidden constructor.
      */
@@ -62,22 +59,10 @@ public final class BitmapUtil {
      * @param drawable the drawable
      * @return a bitmap drawable
      */
-    public static BitmapDrawable resizeDrawable(final Resources res, final Drawable drawable) {
-        final int px = pxFrom60dp(res.getDisplayMetrics());
-
+    public static BitmapDrawable convertToBitmapDrawable(final Resources res, final Drawable drawable) {
         final Bitmap bitmap = convertToBitmap(drawable);
-        final Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, px, px, false);
 
-        return new BitmapDrawable(res, resizedBitmap);
-    }
-
-    /**
-     * Convert display metrix to px for the default dp.
-     * @param metrics the display metrics
-     * @return the px
-     */
-    private static int pxFrom60dp(final DisplayMetrics metrics) {
-        return (int) (metrics.density * DEFAULT_DP);
+        return new BitmapDrawable(res, bitmap);
     }
 
     /**

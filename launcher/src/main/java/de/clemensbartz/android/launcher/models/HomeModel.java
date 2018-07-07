@@ -253,7 +253,7 @@ public final class HomeModel {
             final String key = BitmapUtil.createKey(applicationModel.packageName, applicationModel.className);
             applicationModel.icon = iconCache.getIcon(key);
             if (applicationModel.icon == null) {
-                final BitmapDrawable bitmapDrawable = BitmapUtil.resizeDrawable(resources, info.loadIcon(pm));
+                final BitmapDrawable bitmapDrawable = BitmapUtil.convertToBitmapDrawable(resources, info.loadIcon(pm));
                 iconCache.create(key, bitmapDrawable);
                 applicationModel.icon = bitmapDrawable;
             }

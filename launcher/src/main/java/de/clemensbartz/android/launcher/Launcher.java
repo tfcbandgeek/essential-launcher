@@ -615,7 +615,7 @@ public final class Launcher extends Activity {
         if (bitmapDrawable == null) {
             if (IconCache.IC_LAUNCHER_KEY.equals(key)) {
                 final Drawable icLauncher = getDrawable(R.drawable.ic_launcher);
-                bitmapDrawable = BitmapUtil.resizeDrawable(getResources(), icLauncher);
+                bitmapDrawable = BitmapUtil.convertToBitmapDrawable(getResources(), icLauncher);
                 iconCache.create(IconCache.IC_LAUNCHER_KEY, bitmapDrawable);
             }
         }
@@ -923,7 +923,7 @@ public final class Launcher extends Activity {
                         drawable = iconCache.getIcon(IconCache.IC_LAUNCHER_KEY);
                     }
 
-                    final BitmapDrawable bitmapDrawable = BitmapUtil.resizeDrawable(getResources(), drawable);
+                    final BitmapDrawable bitmapDrawable = BitmapUtil.convertToBitmapDrawable(getResources(), drawable);
                     iconCache.create(key, bitmapDrawable);
                     applicationModel.icon = bitmapDrawable;
                 }
