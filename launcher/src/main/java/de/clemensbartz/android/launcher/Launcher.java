@@ -281,6 +281,7 @@ public final class Launcher extends Activity {
 
         // Go
         new LoadModelAsyncTask().execute();
+        updateApplications();
     }
 
     @Override
@@ -295,7 +296,6 @@ public final class Launcher extends Activity {
         switchTo(HOME_ID);
 
         updateDock();
-        updateApplications();
     }
 
     @Override
