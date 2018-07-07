@@ -1,9 +1,9 @@
 # Essential Launcher
 
-[![Build Status](https://travis-ci.org/clemensbartz/essential-launcher.svg?branch=release%2Fv1.3)](https://travis-ci.org/clemensbartz/essential-launcher)
+[![Build Status](https://travis-ci.org/clemensbartz/essential-launcher.svg?branch=release%2Fv1.5)](https://travis-ci.org/clemensbartz/essential-launcher)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1e17dc4e83d748a7bf35231ed7fa9528)](https://www.codacy.com/app/clemensbartz/essential-launcher?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=clemensbartz/essential-launcher&amp;utm_campaign=Badge_Grade)
-[![codebeat badge](https://codebeat.co/badges/df136534-5c03-4799-9a96-eadde6636502)](https://codebeat.co/projects/github-com-clemensbartz-essential-launcher-release-v1-3)
-[![GitHub license](https://img.shields.io/github/license/clemensbartz/essential-launcher.svg)](https://github.com/clemensbartz/essential-launcher/blob/release/v1.3/LICENSE)
+[![codebeat badge](https://codebeat.co/badges/9a92c9a8-728b-4c47-bbb2-1a45ed9e15b4)](https://codebeat.co/projects/github-com-clemensbartz-essential-launcher-release-v1-5)
+[![GitHub license](https://img.shields.io/github/license/clemensbartz/essential-launcher.svg)](https://github.com/clemensbartz/essential-launcher/blob/release/v1.5/LICENSE)
 
 ## Overview
 
