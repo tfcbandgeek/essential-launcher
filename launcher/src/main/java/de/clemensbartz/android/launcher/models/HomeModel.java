@@ -17,18 +17,16 @@
 
 package de.clemensbartz.android.launcher.models;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,10 +34,8 @@ import java.util.List;
 import java.util.Map;
 
 import de.clemensbartz.android.launcher.Launcher;
-import de.clemensbartz.android.launcher.caches.IconCache;
 import de.clemensbartz.android.launcher.db.ApplicationUsageDbHelper;
 import de.clemensbartz.android.launcher.db.ApplicationUsageModel;
-import de.clemensbartz.android.launcher.util.BitmapUtil;
 
 /**
  * Model class for HomeActivity.
@@ -93,6 +89,8 @@ public final class HomeModel {
     private final SQLiteOpenHelper dbHelper;
     /** Package manager. */
     private final PackageManager pm;
+    /** The ic_launcher. */
+    private final Drawable ic_launcher;
 
     /** Preferences value. */
     private final SharedPreferences preferences;
@@ -125,7 +123,7 @@ public final class HomeModel {
      * @param activity the Activity
      * @return the instance of the home model.
      */
-    public static HomeModel getInstance(final Activity activity) {
+    public static HomeModel getInstance(final Launcher activity) {
         if (instance == null) {
             instance = new HomeModel(activity);
         }
@@ -166,10 +164,11 @@ public final class HomeModel {
      * Create a new model in a context.
      * @param context the context
      */
-    private HomeModel(final Activity context) {
+    private HomeModel(final Launcher context) {
         preferences = context.getPreferences(Context.MODE_PRIVATE);
         dbHelper = ApplicationUsageDbHelper.getInstance(context);
         pm = context.getApplicationContext().getPackageManager();
+        ic_launcher = context.ic_launcher;
     }
 
     /**
@@ -186,11 +185,9 @@ public final class HomeModel {
 
     /**
      * Load preference values.
-     * @param resources the activity this was called from
-     * @param iconCache the icon cache to get the icons from
      */
-    public void loadValues(final Resources resources, final IconCache iconCache) {
-        updateApplications(resources, iconCache);
+    public void loadValues() {
+        updateApplications();
 
         appWidgetId = preferences.getInt(KEY_APPWIDGET_ID, -1);
         appWidgetLayout = preferences.getInt(KEY_APPWIDGET_LAYOUT, Launcher.WIDGET_LAYOUT_FULL_SCREEN);
@@ -219,12 +216,10 @@ public final class HomeModel {
 
     /**
      * Get the application model.
-     * @param resources the resources to use
-     * @param iconCache the icon cache
      * @param contentValue the content values
      * @return an application model, or <code>null</code>, if no application was found
      */
-    private ApplicationModel getApplicationModel(final Resources resources, final IconCache iconCache, final ContentValues contentValue) {
+    private ApplicationModel getApplicationModel(final ContentValues contentValue) {
         final String packageName = convertToString(contentValue.get(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_PACKAGE_NAME));
         final String className = convertToString(contentValue.get(ApplicationUsageModel.ApplicationUsage.COLUMN_NAME_CLASS_NAME));
 
@@ -238,6 +233,7 @@ public final class HomeModel {
 
         try {
             final ComponentName componentName = new ComponentName(packageName, className);
+
             final ActivityInfo info = pm.getActivityInfo(componentName, 0);
             if (!info.enabled) {
                 return null;
@@ -248,14 +244,19 @@ public final class HomeModel {
             applicationModel.disabled = disabled;
             applicationModel.sticky = sticky;
 
-            applicationModel.label = info.loadLabel(pm);
+            final CharSequence label = info.loadLabel(pm);
 
-            final String key = BitmapUtil.createKey(applicationModel.packageName, applicationModel.className);
-            applicationModel.icon = iconCache.getIcon(key);
+            applicationModel.label = (label != null) ? label.toString() : info.name;
+
+            if (applicationModel.label == null) {
+                applicationModel.label = "";
+            }
+
+            applicationModel.icon = info.loadIcon(pm);
+
+            // Check for when icon can become null (e. g. on Huawei Nexus 6p angler).
             if (applicationModel.icon == null) {
-                final BitmapDrawable bitmapDrawable = BitmapUtil.convertToBitmapDrawable(resources, info.loadIcon(pm));
-                iconCache.create(key, bitmapDrawable);
-                applicationModel.icon = bitmapDrawable;
+                applicationModel.icon = ic_launcher;
             }
 
             return applicationModel;
@@ -268,10 +269,8 @@ public final class HomeModel {
      * Update the list of applications.
      * <p/>
      * This method has to be called from an async task.
-     * @param resources the activity this was called from
-     * @param iconCache the icon cache to get the icons from
      */
-    public void updateApplications(final Resources resources, final IconCache iconCache) {
+    public void updateApplications() {
         final Map<String, String> applicationsToBeDeleted = new HashMap<>();
 
         final SQLiteDatabase db = getDatabase();
@@ -300,7 +299,7 @@ public final class HomeModel {
                         continue;
                     }
 
-                    final ApplicationModel applicationModel = getApplicationModel(resources, iconCache, contentValue);
+                    final ApplicationModel applicationModel = getApplicationModel(contentValue);
                     if (applicationModel == null) {
                         applicationsToBeDeleted.put(packageName, className);
                         break;
@@ -496,10 +495,8 @@ public final class HomeModel {
      * Reset the counter for an application.
      * @param packageName the package name
      * @param className the class name
-     * @param resources the activity this was called from
-     * @param iconCache the icon cache to get the icons from
      */
-    public void resetUsage(final String packageName, final String className, final Resources resources, final IconCache iconCache) {
+    public void resetUsage(final String packageName, final String className) {
         final SQLiteDatabase db = getDatabase();
 
         db.beginTransaction();
@@ -538,17 +535,15 @@ public final class HomeModel {
             }
         }
 
-        updateApplications(resources, iconCache);
+        updateApplications();
     }
 
     /**
      * Increase the counter of an app.
      * @param packageName the package name
      * @param className the class name
-     * @param resources the activity this was called from
-     * @param iconCache the icon cache to get the icons from
      */
-    public void addUsage(final String packageName, final String className, final Resources resources, final IconCache iconCache) {
+    public void addUsage(final String packageName, final String className) {
         // Check for deletion
         if (canBeDeleted(packageName, className)) {
             return;
@@ -581,7 +576,7 @@ public final class HomeModel {
                                 values, SELECTION, new String[]{packageName, className});
                         db.setTransactionSuccessful();
                     } else {
-                        resetUsage(packageName, className, resources, iconCache);
+                        resetUsage(packageName, className);
                     }
                 } else {
                     // insert
@@ -598,7 +593,7 @@ public final class HomeModel {
             }
         }
 
-        updateApplications(resources, iconCache);
+        updateApplications();
     }
 
     /**
