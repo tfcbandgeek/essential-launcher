@@ -264,6 +264,19 @@ public final class Launcher extends Activity {
 
         model = HomeModel.getInstance(this);
 
+        // Listen for changes
+        final IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_INSTALL_PACKAGE);
+        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        filter.addAction(Intent.ACTION_LOCALE_CHANGED);
+        filter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        filter.addDataScheme("package");
+
+        registerReceiver(packageChangedBroadcastReceiver, filter);
+
         // Go
         new LoadModelAsyncTask().execute();
     }
@@ -280,6 +293,7 @@ public final class Launcher extends Activity {
         switchTo(HOME_ID);
 
         updateDock();
+        updateApplications();
     }
 
     @Override
@@ -430,25 +444,11 @@ public final class Launcher extends Activity {
         switch (vsLauncher.getDisplayedChild()) {
             case HOME_ID:
                 if (id == DRAWER_ID) {
-                    final IntentFilter filter = new IntentFilter();
-                    filter.addAction(Intent.ACTION_PACKAGE_ADDED);
-                    filter.addAction(Intent.ACTION_INSTALL_PACKAGE);
-                    filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-                    filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-                    filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-                    filter.addDataScheme("package");
-
-                    registerReceiver(packageChangedBroadcastReceiver, filter);
-
-                    updateApplications();
-
                     vsLauncher.showNext();
                 }
                 break;
             case DRAWER_ID:
                 if (id == HOME_ID) {
-                    unregisterReceiver(packageChangedBroadcastReceiver);
-
                     vsLauncher.showPrevious();
                 }
                 break;
