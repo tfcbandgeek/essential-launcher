@@ -18,14 +18,14 @@ repositories {
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     buildToolsVersion '28.0.2'
 
     defaultConfig {
         applicationId "de.clemensbartz.android.launcher"
         minSdkVersion 21
-        targetSdkVersion 27
-        maxSdkVersion 27
+        targetSdkVersion 28
+        maxSdkVersion 28
         versionCode 11
         versionName "1.4"
     }

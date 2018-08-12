@@ -36,6 +36,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.StrictMode;
@@ -178,8 +179,32 @@ public final class Launcher extends Activity {
         }
     }
 
+    /**
+     * Adjust the theme.
+     * </br>
+     * This function is necessary, because API 21-25 do not
+     * support theme inheritance in emulators (and I assume in real
+     * devices as well.
+     */
+    private void setTheme() {
+        switch (Build.VERSION.SDK_INT) {
+            case Build.VERSION_CODES.LOLLIPOP:
+            case Build.VERSION_CODES.LOLLIPOP_MR1:
+            case Build.VERSION_CODES.M:
+            case Build.VERSION_CODES.N:
+            case Build.VERSION_CODES.N_MR1:
+            case Build.VERSION_CODES.O:
+            case Build.VERSION_CODES.O_MR1:
+                setTheme(R.style.API21ActivityStyle);
+                break;
+            default:
+                // leave highest default
+        }
+    }
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+        setTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launcher);
 
