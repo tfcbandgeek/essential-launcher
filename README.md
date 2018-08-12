@@ -29,7 +29,7 @@ Essential Launcher is a small launcher for Android. It provides a minimum of fun
 
 If you want to support development, please make sure:
 
-- You use Android Studio >= 3.0.1
+- You use Android Studio >= 3.1.4
 - You must not enable [minify](http://developer.android.com/tools/help/proguard.html)
 - You use SDK Version >= 27.
 - You specify minimum SDK Version as 21 (Android 5.0).
