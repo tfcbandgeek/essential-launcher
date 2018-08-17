@@ -895,6 +895,12 @@ public final class Launcher extends Activity {
 
             for (int i1 = 0, resolveInfoListSize = resolveInfoList.size(); i1 < resolveInfoListSize; i1++) {
                 final ResolveInfo resolveInfo = resolveInfoList.get(i1);
+
+                // Skip for non-launchable activities
+                if (!resolveInfo.activityInfo.exported) {
+                    continue;
+                }
+
                 final boolean disabled = model.isDisabled(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                 final boolean sticky = model.isSticky(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                 final ApplicationModel applicationModel = new ApplicationModel();
