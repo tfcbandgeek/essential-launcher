@@ -458,13 +458,24 @@ public final class Launcher extends Activity {
      * @param applicationModel the model
      */
     private void openApp(final ApplicationModel applicationModel) {
-        new LoadMostUsedAppsAsyncTask().execute(applicationModel);
-
         final ComponentName component = new ComponentName(applicationModel.packageName, applicationModel.className);
         final Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.setComponent(component);
 
-        startActivity(intent);
+        boolean canBeLaunched = false;
+
+        final List<ResolveInfo> rs = getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        for (ResolveInfo resolveInfo : rs) {
+            if (resolveInfo.activityInfo.exported) {
+                canBeLaunched = true;
+                break;
+            }
+        }
+
+        if (canBeLaunched) {
+            startActivity(intent);
+            new LoadMostUsedAppsAsyncTask().execute(applicationModel);
+        }
     }
 
     /**
