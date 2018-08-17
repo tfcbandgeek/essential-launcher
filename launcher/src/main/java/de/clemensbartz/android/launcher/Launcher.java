@@ -40,6 +40,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.StrictMode;
+import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -336,7 +337,13 @@ public final class Launcher extends Activity {
                         intent.setComponent(appWidgetInfo.configure);
                         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 
-                        startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
+                        // Thank you to Google Keep for ruining the show: java.lang.SecurityException: Permission Denial: starting Intent [...] not exported from uid
+                        final List<ResolveInfo> rs = getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+                        if (rs.size() == 1) {
+                            if (rs.get(0).activityInfo.exported) {
+                                startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
+                            }
+                        }
                     } else {
                         createWidget(data);
                     }
