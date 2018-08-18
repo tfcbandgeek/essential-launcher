@@ -97,6 +97,7 @@ public final class ApplicationUsageModel {
         /** Name of the column for sticky. */
         public static final String COLUMN_NAME_STICKY = "sticky";
         /** Type of the column for sticky. */
+        @SuppressWarnings("WeakerAccess")
         public static final String COLUMN_TYPE_STICKY = "BOOLEAN";
     }
 }
