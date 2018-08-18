@@ -89,8 +89,8 @@ public final class HomeModel {
     private final SQLiteOpenHelper dbHelper;
     /** Package manager. */
     private final PackageManager pm;
-    /** The ic_launcher. */
-    private final Drawable ic_launcher;
+    /** The icLauncher. */
+    private final Drawable icLauncher;
 
     /** Preferences value. */
     private final SharedPreferences preferences;
@@ -168,7 +168,7 @@ public final class HomeModel {
         preferences = context.getPreferences(Context.MODE_PRIVATE);
         dbHelper = ApplicationUsageDbHelper.getInstance(context);
         pm = context.getApplicationContext().getPackageManager();
-        ic_launcher = context.ic_launcher;
+        icLauncher = context.ic_launcher;
     }
 
     /**
@@ -256,7 +256,7 @@ public final class HomeModel {
 
             // Check for when icon can become null (e. g. on Huawei Nexus 6p angler).
             if (applicationModel.icon == null) {
-                applicationModel.icon = ic_launcher;
+                applicationModel.icon = icLauncher;
             }
 
             return applicationModel;
