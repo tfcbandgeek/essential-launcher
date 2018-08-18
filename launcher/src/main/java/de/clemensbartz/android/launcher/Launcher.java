@@ -417,9 +417,6 @@ public final class Launcher extends Activity {
             switch (item.getItemId()) {
 
                 case ITEM_REMOVE_WIDGET:
-                    // Reset layout
-                    model.setKeyAppwidgetLayout(WIDGET_LAYOUT_FULL_SCREEN);
-                    adjustWidget(WIDGET_LAYOUT_FULL_SCREEN);
                     // Remove widget
                     createWidget(-1);
                     break;
@@ -544,6 +541,9 @@ public final class Launcher extends Activity {
         if (model.getAppWidgetId() > -1) {
             appWidgetHost.deleteAppWidgetId(model.getAppWidgetId());
             frWidget.removeAllViews();
+            // Reset view
+            model.setKeyAppwidgetLayout(WIDGET_LAYOUT_FULL_SCREEN);
+            adjustWidget(WIDGET_LAYOUT_FULL_SCREEN);
         }
 
         model.setAppWidgetId(appWidgetId);
