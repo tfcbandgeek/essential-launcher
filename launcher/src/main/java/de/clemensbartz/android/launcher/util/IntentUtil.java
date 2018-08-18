@@ -77,21 +77,6 @@ public final class IntentUtil {
     }
 
     /**
-     * Create an intent for calling the ACTION_APPWIDGET_CONFIGURE activity for a specific
-     * appWidgetId.
-     * @param componentName the component
-     * @param appWidgetId the appWidgetId
-     * @return the intent
-     */
-    public static Intent createWidgetConfigureIntent(final ComponentName componentName, final Integer appWidgetId) {
-        final Intent intent = createWidgetConfigureIntent(componentName);
-
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-
-        return intent;
-    }
-
-    /**
      * Check if an intent is callable.
      * @param intent the intent
      * @param pm the package manager to check against
