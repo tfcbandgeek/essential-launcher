@@ -97,7 +97,7 @@ public class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Integer, L
 
         Collections.sort(infoList, new Comparator<FilledAppWidgetProviderInfo>() {
             @Override
-            public int compare(FilledAppWidgetProviderInfo o1, FilledAppWidgetProviderInfo o2) {
+            public int compare(final FilledAppWidgetProviderInfo o1, final FilledAppWidgetProviderInfo o2) {
                 return o1.label.compareTo(o2.label);
             }
         });

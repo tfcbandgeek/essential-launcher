@@ -447,7 +447,7 @@ public final class Launcher extends Activity {
 
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
-                        public boolean onMenuItemClick(MenuItem item) {
+                        public boolean onMenuItemClick(final MenuItem item) {
                             model.setKeyAppwidgetLayout(item.getItemId());
                             adjustWidget(item.getItemId());
                             return true;

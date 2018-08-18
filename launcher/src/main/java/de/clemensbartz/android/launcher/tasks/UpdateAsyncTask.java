@@ -108,7 +108,7 @@ public class UpdateAsyncTask extends AsyncTask<Integer, Integer, Integer> {
             // Sort
             Collections.sort(launcher.applicationModels, new Comparator<ApplicationModel>() {
                 @Override
-                public int compare(ApplicationModel o1, ApplicationModel o2) {
+                public int compare(final ApplicationModel o1, final ApplicationModel o2) {
                     return Collator.getInstance().compare(o1.label, o2.label);
                 }
             });
