@@ -29,13 +29,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -50,10 +48,7 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ViewSwitcher;
 
-import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import de.clemensbartz.android.launcher.adapters.DrawerListAdapter;
@@ -65,6 +60,7 @@ import de.clemensbartz.android.launcher.tasks.ResetUsageAsyncTask;
 import de.clemensbartz.android.launcher.tasks.ShowWidgetListAsPopupMenuTask;
 import de.clemensbartz.android.launcher.tasks.ToggleDockAsyncTask;
 import de.clemensbartz.android.launcher.tasks.ToggleStickyAsyncTask;
+import de.clemensbartz.android.launcher.tasks.UpdateAsyncTask;
 import de.clemensbartz.android.launcher.util.IntentUtil;
 
 /**
@@ -155,11 +151,11 @@ public final class Launcher extends Activity {
     /** The host for widgets. */
     private AppWidgetHost appWidgetHost;
     /** The adapter for applications. */
-    private DrawerListAdapter lvApplicationsAdapter;
+    public DrawerListAdapter lvApplicationsAdapter;
     /** The asynchronous task for updating the list view. */
     private UpdateAsyncTask updateAsyncTask;
     /** The list of installed applications. */
-    private final List<ApplicationModel> applicationModels = new ArrayList<>(0);
+    public final List<ApplicationModel> applicationModels = new ArrayList<>(0);
     /** The broadcast receiver for package changes. */
     private final BroadcastReceiver packageChangedBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -646,7 +642,7 @@ public final class Launcher extends Activity {
             updateAsyncTask.cancel(true);
         }
 
-        updateAsyncTask = new UpdateAsyncTask();
+        updateAsyncTask = new UpdateAsyncTask(this, model);
         updateAsyncTask.execute();
     }
 
@@ -800,83 +796,4 @@ public final class Launcher extends Activity {
         }
     }
 
-    /**
-     * Async task to update applications of the list view.
-     */
-    private class UpdateAsyncTask extends AsyncTask<Integer, Integer, Integer> {
-
-        @Override
-        protected Integer doInBackground(final Integer... integers) {
-            final Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-            final PackageManager pm = getPackageManager();
-            final List<ResolveInfo> resolveInfoList = pm.queryIntentActivities(intent, 0);
-
-            for (int i1 = 0, resolveInfoListSize = resolveInfoList.size(); i1 < resolveInfoListSize; i1++) {
-                final ResolveInfo resolveInfo = resolveInfoList.get(i1);
-
-                // Skip for non-launchable activities
-                if (!resolveInfo.activityInfo.exported) {
-                    continue;
-                }
-
-                final boolean disabled = model.isDisabled(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
-                final boolean sticky = model.isSticky(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
-                final ApplicationModel applicationModel = new ApplicationModel();
-                applicationModel.packageName = resolveInfo.activityInfo.packageName;
-                applicationModel.className = resolveInfo.activityInfo.name;
-                applicationModel.disabled = disabled;
-                applicationModel.sticky = sticky;
-
-                if (applicationModel.packageName == null || applicationModel.className == null) {
-                    continue;
-                }
-
-                final CharSequence label = resolveInfo.loadLabel(pm);
-
-                applicationModel.label = (label != null) ? label.toString() : resolveInfo.activityInfo.name;
-
-                if (applicationModel.label == null) {
-                    applicationModel.label = "";
-                }
-
-                applicationModel.icon = resolveInfo.loadIcon(pm);
-
-                // Check for when icon can become null (e. g. on Huawei Nexus 6p angler).
-                if (applicationModel.icon == null) {
-                    applicationModel.icon = ic_launcher;
-                }
-
-                applicationModels.add(applicationModel);
-            }
-
-            // Sort
-            Collections.sort(applicationModels, new Comparator<ApplicationModel>() {
-                @Override
-                public int compare(ApplicationModel o1, ApplicationModel o2) {
-                    return Collator.getInstance().compare(o1.label, o2.label);
-                }
-            });
-
-            return 0;
-        }
-
-        @Override
-        protected void onPostExecute(final Integer result) {
-            lvApplicationsAdapter.notifyDataSetChanged();
-        }
-
-        @Override
-        protected void onPreExecute() {
-            applicationModels.clear();
-            lvApplicationsAdapter.notifyDataSetChanged();
-        }
-
-        @Override
-        protected void onProgressUpdate(final Integer... values) {
-            lvApplicationsAdapter.notifyDataSetChanged();
-        }
-    }
 }
