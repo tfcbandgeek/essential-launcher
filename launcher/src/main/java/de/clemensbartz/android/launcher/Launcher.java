@@ -61,6 +61,7 @@ import de.clemensbartz.android.launcher.adapters.DrawerListAdapter;
 import de.clemensbartz.android.launcher.models.ApplicationModel;
 import de.clemensbartz.android.launcher.models.DockUpdateModel;
 import de.clemensbartz.android.launcher.models.HomeModel;
+import de.clemensbartz.android.launcher.tasks.LoadModelAsyncTask;
 import de.clemensbartz.android.launcher.tasks.ShowWidgetListAsPopupMenuTask;
 import de.clemensbartz.android.launcher.util.IntentUtil;
 
@@ -305,7 +306,7 @@ public final class Launcher extends Activity {
         registerReceiver(packageChangedBroadcastReceiver, filter);
 
         // Go
-        new LoadModelAsyncTask().execute();
+        new LoadModelAsyncTask(this, model).execute();
         updateApplications();
     }
 
@@ -553,7 +554,7 @@ public final class Launcher extends Activity {
      * Adjust widget layout according to layout id.
      * @param appWidgetLayout the layout id.
      */
-    private void adjustWidget(final int appWidgetLayout) {
+    public void adjustWidget(final int appWidgetLayout) {
         final ViewGroup.LayoutParams bottomLayout = vBottomFiller.getLayoutParams();
         final ViewGroup.LayoutParams topLayout = vTopFiller.getLayoutParams();
 
@@ -619,7 +620,7 @@ public final class Launcher extends Activity {
      * Add a host view to the frame layout for a widget id.
      * @param appWidgetId the widget id
      */
-    private void addHostView(final int appWidgetId) {
+    public void addHostView(final int appWidgetId) {
         frWidget.removeAllViews();
 
         if (hasAppWidgets(this)) {
@@ -888,29 +889,6 @@ public final class Launcher extends Activity {
             for (DockUpdateModel dockUpdateModel : values) {
                 updateDock(dockUpdateModel.getImageView(), dockUpdateModel.getApplicationModel());
             }
-        }
-    }
-
-    /**
-     * Async task for loading the model on start.
-     */
-    private class LoadModelAsyncTask extends AsyncTask<Integer, Integer, Pair<Integer, Integer>> {
-        @Override
-        protected Pair<Integer, Integer> doInBackground(final Integer... params) {
-            model.loadValues();
-
-            return new Pair<>(model.getAppWidgetId(), model.getAppWidgetLayout());
-        }
-
-        @Override
-        protected void onPostExecute(final Pair<Integer, Integer> result) {
-            // Show last selected widget.
-            if (result.first > -1) {
-                addHostView(result.first);
-            }
-
-            // Layout widget
-            adjustWidget(result.second);
         }
     }
 
