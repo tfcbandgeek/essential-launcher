@@ -17,10 +17,6 @@
 
 package de.clemensbartz.android.launcher.tasks;
 
-import android.os.AsyncTask;
-
-import java.lang.ref.WeakReference;
-
 import de.clemensbartz.android.launcher.Launcher;
 import de.clemensbartz.android.launcher.models.ApplicationModel;
 import de.clemensbartz.android.launcher.models.HomeModel;
@@ -30,12 +26,7 @@ import de.clemensbartz.android.launcher.models.HomeModel;
  * @since 1.5
  * @author Clemens Bartz
  */
-public final class ToggleDockAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
-
-    /** Weak reference to {@link Launcher}. */
-    private final WeakReference<Launcher> launcherWeakReference;
-    /** Weak reference to {@link HomeModel}. */
-    private final WeakReference<HomeModel> homeModelWeakReference;
+public final class ToggleDockAsyncTask extends ToggleFieldAsyncTask {
 
     /**
      * Create a new task for toggling the visibility of a dock app.
@@ -43,32 +34,12 @@ public final class ToggleDockAsyncTask extends AsyncTask<ApplicationModel, Integ
      * @param model the model
      */
     public ToggleDockAsyncTask(final Launcher launcher, final HomeModel model) {
-        launcherWeakReference = new WeakReference<>(launcher);
-        homeModelWeakReference = new WeakReference<>(model);
+        super(launcher, model);
     }
 
     @Override
-    protected Integer doInBackground(final ApplicationModel... applicationModels) {
-        final HomeModel model = homeModelWeakReference.get();
-
-        if (model != null) {
-            for (ApplicationModel applicationModel : applicationModels) {
-                model.toggleDisabled(applicationModel.packageName, applicationModel.className);
-            }
-        }
-
-        return 0;
+    protected void toggleField(final HomeModel homeModel, final ApplicationModel applicationModel) {
+        homeModel.toggleDisabled(applicationModel.packageName, applicationModel.className);
     }
 
-    @Override
-    protected void onPostExecute(final Integer result) {
-        final Launcher launcher = launcherWeakReference.get();
-        final HomeModel model = homeModelWeakReference.get();
-
-        if (launcher != null && model != null) {
-            new UpdateAsyncTask(launcher, model).execute();
-            new LoadMostUsedAppsAsyncTask(launcher, model).execute();
-            launcher.switchTo(Launcher.HOME_ID);
-        }
-    }
 }

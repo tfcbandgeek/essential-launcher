@@ -17,10 +17,6 @@
 
 package de.clemensbartz.android.launcher.tasks;
 
-import android.os.AsyncTask;
-
-import java.lang.ref.WeakReference;
-
 import de.clemensbartz.android.launcher.Launcher;
 import de.clemensbartz.android.launcher.models.ApplicationModel;
 import de.clemensbartz.android.launcher.models.HomeModel;
@@ -30,45 +26,19 @@ import de.clemensbartz.android.launcher.models.HomeModel;
  * @since 1.5
  * @author Clemens Bartz
  */
-public final class ToggleStickyAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
-
-    /** Weak reference to {@link Launcher}. */
-    private final WeakReference<Launcher> launcherWeakReference;
-    /** Weak reference to {@link HomeModel}. */
-    private final WeakReference<HomeModel> homeModelWeakReference;
+public final class ToggleStickyAsyncTask extends ToggleFieldAsyncTask {
 
     /**
-     * Create a new task for toggling the visibility.
+     * Create a new task for toggling the stickiness of a dock app.
      * @param launcher the launcher
      * @param model the model
      */
     public ToggleStickyAsyncTask(final Launcher launcher, final HomeModel model) {
-        launcherWeakReference = new WeakReference<>(launcher);
-        homeModelWeakReference = new WeakReference<>(model);
+        super(launcher, model);
     }
 
     @Override
-    protected Integer doInBackground(final ApplicationModel... applicationModels) {
-        final HomeModel model = homeModelWeakReference.get();
-
-        if (model != null) {
-            for (ApplicationModel applicationModel : applicationModels) {
-                model.toggleSticky(applicationModel.packageName, applicationModel.className);
-            }
-        }
-
-        return 0;
-    }
-
-    @Override
-    protected void onPostExecute(final Integer result) {
-        final Launcher launcher = launcherWeakReference.get();
-        final HomeModel model = homeModelWeakReference.get();
-
-        if (launcher != null && model != null) {
-            new UpdateAsyncTask(launcher, model).execute();
-            new LoadMostUsedAppsAsyncTask(launcher, model).execute();
-            launcher.switchTo(Launcher.HOME_ID);
-        }
+    protected void toggleField(final HomeModel homeModel, final ApplicationModel applicationModel) {
+        homeModel.toggleSticky(applicationModel.packageName, applicationModel.className);
     }
 }
