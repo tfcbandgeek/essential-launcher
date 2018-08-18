@@ -66,6 +66,7 @@ public final class ToggleDockAsyncTask extends AsyncTask<ApplicationModel, Integ
         final HomeModel model = homeModelWeakReference.get();
 
         if (launcher != null && model != null) {
+            new UpdateAsyncTask(launcher, model).execute();
             new LoadMostUsedAppsAsyncTask(launcher, model).execute();
             launcher.switchTo(Launcher.HOME_ID);
         }
