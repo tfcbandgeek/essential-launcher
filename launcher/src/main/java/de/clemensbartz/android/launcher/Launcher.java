@@ -245,8 +245,7 @@ public final class Launcher extends Activity {
 
         ivDrawer.setOnClickListener(new DrawerOnClickListener());
 
-        for (int i = 0, dockImageViewsSize = dockImageViews.size(); i < dockImageViewsSize; i++) {
-            final ImageView imageView = dockImageViews.get(i);
+        for (ImageView imageView : dockImageViews) {
             imageView.setOnCreateContextMenuListener(new DockContextMenuListener());
         }
 

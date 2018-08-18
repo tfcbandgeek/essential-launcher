@@ -67,9 +67,7 @@ public final class UpdateAsyncTask extends AsyncTask<Integer, Integer, Integer> 
             final PackageManager pm = launcher.getPackageManager();
             final List<ResolveInfo> resolveInfoList = pm.queryIntentActivities(intent, 0);
 
-            for (int i1 = 0, resolveInfoListSize = resolveInfoList.size(); i1 < resolveInfoListSize; i1++) {
-                final ResolveInfo resolveInfo = resolveInfoList.get(i1);
-
+            for (ResolveInfo resolveInfo : resolveInfoList) {
                 // Skip for non-launchable activities
                 if (!resolveInfo.activityInfo.exported) {
                     continue;
