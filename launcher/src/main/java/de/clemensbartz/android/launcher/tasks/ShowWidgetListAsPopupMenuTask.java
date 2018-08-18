@@ -89,9 +89,9 @@ public final class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Inte
 
             // Fill info
             final FilledAppWidgetProviderInfo info = new FilledAppWidgetProviderInfo();
-            info.label = appWidgetProviderInfo.loadLabel(pm);
-            info.provider = appWidgetProviderInfo.provider;
-            info.configure = appWidgetProviderInfo.configure;
+            info.setLabel(appWidgetProviderInfo.loadLabel(pm));
+            info.setProvider(appWidgetProviderInfo.provider);
+            info.setConfigure(appWidgetProviderInfo.configure);
 
             infoList.add(info);
         }
@@ -99,7 +99,7 @@ public final class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Inte
         Collections.sort(infoList, new Comparator<FilledAppWidgetProviderInfo>() {
             @Override
             public int compare(final FilledAppWidgetProviderInfo o1, final FilledAppWidgetProviderInfo o2) {
-                return o1.label.compareTo(o2.label);
+                return o1.getLabel().compareTo(o2.getLabel());
             }
         });
 
@@ -115,11 +115,11 @@ public final class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Inte
             final PopupMenu popupMenu = new PopupMenu(launcher, launcher.vTopFiller);
 
             for (ShowWidgetListAsPopupMenuTask.FilledAppWidgetProviderInfo info : appWidgetProviderInfos) {
-                final MenuItem menuItem = popupMenu.getMenu().add(info.label);
+                final MenuItem menuItem = popupMenu.getMenu().add(info.getLabel());
 
                 final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
-                intent.setComponent(info.configure);
-                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider);
+                intent.setComponent(info.getConfigure());
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.getProvider());
 
                 menuItem.setIntent(intent);
             }
@@ -146,10 +146,58 @@ public final class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Inte
      */
     public final class FilledAppWidgetProviderInfo {
         /** The label for the provider. */
-        public String label;
+        private String label;
         /** The provider component. */
-        public ComponentName provider;
+        private ComponentName provider;
         /** The configure component. */
-        public ComponentName configure;
+        private ComponentName configure;
+
+        /**
+         *
+         * @return the label
+         */
+        public String getLabel() {
+            return label;
+        }
+
+        /**
+         * Set the new label.
+         * @param label the new label.
+         */
+        public void setLabel(final String label) {
+            this.label = label;
+        }
+
+        /**
+         *
+         * @return the provider component name
+         */
+        public ComponentName getProvider() {
+            return provider;
+        }
+
+        /**
+         * Set the new provider component name.
+         * @param provider the provider component name
+         */
+        public void setProvider(final ComponentName provider) {
+            this.provider = provider;
+        }
+
+        /**
+         *
+         * @return the configure component name
+         */
+        public ComponentName getConfigure() {
+            return configure;
+        }
+
+        /**
+         * Set the new configure component name.
+         * @param configure the configure component name
+         */
+        public void setConfigure(final ComponentName configure) {
+            this.configure = configure;
+        }
     }
 }

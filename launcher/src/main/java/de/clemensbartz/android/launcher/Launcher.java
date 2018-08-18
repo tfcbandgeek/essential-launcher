@@ -151,7 +151,7 @@ public final class Launcher extends Activity {
     /** The host for widgets. */
     private AppWidgetHost appWidgetHost;
     /** The adapter for applications. */
-    public DrawerListAdapter lvApplicationsAdapter;
+    private DrawerListAdapter lvApplicationsAdapter;
     /** The asynchronous task for updating the list view. */
     private UpdateAsyncTask updateAsyncTask;
     /** The list of installed applications. */
@@ -710,6 +710,14 @@ public final class Launcher extends Activity {
             });
             imageView.setContentDescription(applicationModel.label);
         }
+    }
+
+    /**
+     *
+     * @return the applications adapter for the list view
+     */
+    public DrawerListAdapter getListViewApplicationsAdapter() {
+        return lvApplicationsAdapter;
     }
 
     /**

@@ -89,7 +89,11 @@ public final class UpdateAsyncTask extends AsyncTask<Integer, Integer, Integer> 
 
                 final CharSequence label = resolveInfo.loadLabel(pm);
 
-                applicationModel.label = (label != null) ? label.toString() : resolveInfo.activityInfo.name;
+                if (label != null) {
+                    applicationModel.label = label.toString();
+                } else {
+                    applicationModel.label = resolveInfo.activityInfo.name;
+                }
 
                 if (applicationModel.label == null) {
                     applicationModel.label = "";
@@ -122,7 +126,7 @@ public final class UpdateAsyncTask extends AsyncTask<Integer, Integer, Integer> 
         final Launcher launcher = launcherWeakReference.get();
 
         if (launcher != null) {
-            launcher.lvApplicationsAdapter.notifyDataSetChanged();
+            launcher.getListViewApplicationsAdapter().notifyDataSetChanged();
         }
     }
 
@@ -132,7 +136,7 @@ public final class UpdateAsyncTask extends AsyncTask<Integer, Integer, Integer> 
 
         if (launcher != null) {
             launcher.applicationModels.clear();
-            launcher.lvApplicationsAdapter.notifyDataSetChanged();
+            launcher.getListViewApplicationsAdapter().notifyDataSetChanged();
         }
     }
 }

@@ -246,7 +246,11 @@ public final class HomeModel {
 
             final CharSequence label = info.loadLabel(pm);
 
-            applicationModel.label = (label != null) ? label.toString() : info.name;
+            if (label != null) {
+                applicationModel.label = label.toString();
+            } else {
+                applicationModel.label = info.name;
+            }
 
             if (applicationModel.label == null) {
                 applicationModel.label = "";
