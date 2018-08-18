@@ -168,45 +168,6 @@ public final class Launcher extends Activity {
     /** The temporary configure component for widgets. */
     private ComponentName widgetConfigure;
 
-    /**
-     * Adjust StrictMode based on environment parameters.
-     */
-    private void adjustStrictMode() {
-        if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
-                    .build());
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
-                    .build());
-        }
-    }
-
-    /**
-     * Adjust the theme.
-     * <br>
-     * This function is necessary, because API 21-25 do not
-     * support theme inheritance in emulators (and I assume in real
-     * devices as well.
-     */
-    private void setTheme() {
-        switch (Build.VERSION.SDK_INT) {
-            case Build.VERSION_CODES.LOLLIPOP:
-            case Build.VERSION_CODES.LOLLIPOP_MR1:
-            case Build.VERSION_CODES.M:
-            case Build.VERSION_CODES.N:
-            case Build.VERSION_CODES.N_MR1:
-            case Build.VERSION_CODES.O:
-            case Build.VERSION_CODES.O_MR1:
-                setTheme(R.style.API21ActivityStyle);
-                break;
-            default:
-                // leave highest default
-        }
-    }
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         setTheme();
@@ -312,6 +273,21 @@ public final class Launcher extends Activity {
     }
 
     @Override
+    protected void onDestroy() {
+        appWidgetHost.stopListening();
+        //model.close();
+
+        // Prevent memory leaks for receiver
+        try {
+            unregisterReceiver(packageChangedBroadcastReceiver);
+        } catch (final IllegalArgumentException e) {
+            // do nothing here
+        }
+
+        super.onDestroy();
+    }
+
+    @Override
     protected void onActivityResult(
             final int requestCode,
             final int resultCode,
@@ -332,55 +308,6 @@ public final class Launcher extends Activity {
         }
 
         widgetConfigure = null;
-    }
-
-    /**
-     * Configure a widget for a provider.
-     * @param appWidgetId the appWidgetId
-     * @param configure the configure component
-     */
-    private void configureWidget(final Integer appWidgetId, final ComponentName configure) {
-        // Abort on invalid input
-        if (appWidgetId == -1) {
-            return;
-        }
-
-        if (configure != null) {
-            final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
-            intent.setComponent(configure);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            intent.putExtra(EXTRA_APP_WIDGET_CONFIGURE, configure);
-
-            if (IntentUtil.isCallable(getPackageManager(), intent)) {
-                startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
-            }
-        } else {
-            // Configuring not necessary, go strait to creation
-            createWidget(appWidgetId);
-        }
-
-        // Reset widget configure
-        widgetConfigure = null;
-    }
-
-    /**
-     * Bind a widget for a provider.
-     * @param provider the provider component
-     * @param configure the configure component
-     */
-    public void bindWidget(final ComponentName provider, final ComponentName configure) {
-        final int appWidgetId = appWidgetHost.allocateAppWidgetId();
-
-        if (appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)) {
-            // Binding is allowed, go straight to configuring
-            configureWidget(appWidgetId, configure);
-        } else {
-            // Ask for permission
-            widgetConfigure = configure;
-
-            final Intent intent = IntentUtil.createWidgetBindIntent(provider, appWidgetId);
-            startActivityForResult(intent, REQUEST_BIND_APPWIDGET);
-        }
     }
 
     @Override
@@ -449,6 +376,134 @@ public final class Launcher extends Activity {
     }
 
     /**
+     *
+     * @return the applications adapter for the list view
+     */
+    public DrawerListAdapter getListViewApplicationsAdapter() {
+        return lvApplicationsAdapter;
+    }
+
+    /**
+     *
+     * @return the top filler view
+     */
+    public View getTopFiller() {
+        return vTopFiller;
+    }
+
+    /**
+     *
+     * @return the dock image views
+     */
+    public List<ImageView> getDockImageViews() {
+        return dockImageViews;
+    }
+
+    /**
+     *
+     * @return the application models list
+     */
+    public List<ApplicationModel> getApplicationModels() {
+        return applicationModels;
+    }
+
+    /**
+     *
+     * @return the launcher drawable
+     */
+    public Drawable getIcLauncher() {
+        return icLauncher;
+    }
+
+    /**
+     * Adjust StrictMode based on environment parameters.
+     */
+    private void adjustStrictMode() {
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog()
+                    .build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog()
+                    .build());
+        }
+    }
+
+    /**
+     * Adjust the theme.
+     * <br>
+     * This function is necessary, because API 21-25 do not
+     * support theme inheritance in emulators (and I assume in real
+     * devices as well.
+     */
+    private void setTheme() {
+        switch (Build.VERSION.SDK_INT) {
+            case Build.VERSION_CODES.LOLLIPOP:
+            case Build.VERSION_CODES.LOLLIPOP_MR1:
+            case Build.VERSION_CODES.M:
+            case Build.VERSION_CODES.N:
+            case Build.VERSION_CODES.N_MR1:
+            case Build.VERSION_CODES.O:
+            case Build.VERSION_CODES.O_MR1:
+                setTheme(R.style.API21ActivityStyle);
+                break;
+            default:
+                // leave highest default
+        }
+    }
+
+    /**
+     * Configure a widget for a provider.
+     * @param appWidgetId the appWidgetId
+     * @param configure the configure component
+     */
+    private void configureWidget(final Integer appWidgetId, final ComponentName configure) {
+        // Abort on invalid input
+        if (appWidgetId == -1) {
+            return;
+        }
+
+        if (configure != null) {
+            final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
+            intent.setComponent(configure);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            intent.putExtra(EXTRA_APP_WIDGET_CONFIGURE, configure);
+
+            if (IntentUtil.isCallable(getPackageManager(), intent)) {
+                startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
+            }
+        } else {
+            // Configuring not necessary, go strait to creation
+            createWidget(appWidgetId);
+        }
+
+        // Reset widget configure
+        widgetConfigure = null;
+    }
+
+    /**
+     * Bind a widget for a provider.
+     * @param provider the provider component
+     * @param configure the configure component
+     */
+    public void bindWidget(final ComponentName provider, final ComponentName configure) {
+        final int appWidgetId = appWidgetHost.allocateAppWidgetId();
+
+        if (appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)) {
+            // Binding is allowed, go straight to configuring
+            configureWidget(appWidgetId, configure);
+        } else {
+            // Ask for permission
+            widgetConfigure = configure;
+
+            final Intent intent = IntentUtil.createWidgetBindIntent(provider, appWidgetId);
+            startActivityForResult(intent, REQUEST_BIND_APPWIDGET);
+        }
+    }
+
+    /**
      * Add a menu item for the layout popup menu.
      * @param popupMenu the popup menu
      * @param widgetLayout the layout for the item
@@ -459,21 +514,6 @@ public final class Launcher extends Activity {
         final MenuItem menuItem = popupMenu.getMenu().add(0, widgetLayout, 0, resourceId);
         menuItem.setCheckable(true);
         menuItem.setChecked(currentLayout == widgetLayout);
-    }
-
-    @Override
-    protected void onDestroy() {
-        appWidgetHost.stopListening();
-        //model.close();
-
-        // Prevent memory leaks for receiver
-        try {
-            unregisterReceiver(packageChangedBroadcastReceiver);
-        } catch (final IllegalArgumentException e) {
-            // do nothing here
-        }
-
-        super.onDestroy();
     }
 
     /**
@@ -705,46 +745,6 @@ public final class Launcher extends Activity {
             });
             imageView.setContentDescription(applicationModel.label);
         }
-    }
-
-    /**
-     *
-     * @return the applications adapter for the list view
-     */
-    public DrawerListAdapter getListViewApplicationsAdapter() {
-        return lvApplicationsAdapter;
-    }
-
-    /**
-     *
-     * @return the top filler view
-     */
-    public View getTopFiller() {
-        return vTopFiller;
-    }
-
-    /**
-     *
-     * @return the dock image views
-     */
-    public List<ImageView> getDockImageViews() {
-        return dockImageViews;
-    }
-
-    /**
-     *
-     * @return the application models list
-     */
-    public List<ApplicationModel> getApplicationModels() {
-        return applicationModels;
-    }
-
-    /**
-     *
-     * @return the launcher drawable
-     */
-    public Drawable getIcLauncher() {
-        return icLauncher;
     }
 
     /**
