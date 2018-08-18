@@ -40,7 +40,7 @@ import de.clemensbartz.android.launcher.util.IntentUtil;
  * @author Clemens Bartz
  * @since 1.5
  */
-public class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Integer, List<ShowWidgetListAsPopupMenuTask.FilledAppWidgetProviderInfo>> {
+public final class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Integer, List<ShowWidgetListAsPopupMenuTask.FilledAppWidgetProviderInfo>> {
 
     /** The weak reference to our activity where the widget list should be shown. */
     private final WeakReference<Launcher> launcherWeakReference;
@@ -144,7 +144,7 @@ public class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Integer, L
     /**
      * Holds filled AppWidgetProviderInfo.
      */
-    public class FilledAppWidgetProviderInfo {
+    public final class FilledAppWidgetProviderInfo {
         /** The label for the provider. */
         public String label;
         /** The provider component. */

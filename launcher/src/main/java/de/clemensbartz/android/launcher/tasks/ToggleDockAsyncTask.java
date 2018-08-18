@@ -30,7 +30,7 @@ import de.clemensbartz.android.launcher.models.HomeModel;
  * @since 1.5
  * @author Clemens Bartz
  */
-public class ToggleDockAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
+public final class ToggleDockAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
 
     /** Weak reference to {@link Launcher}. */
     private final WeakReference<Launcher> launcherWeakReference;

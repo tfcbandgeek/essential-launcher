@@ -32,7 +32,7 @@ import de.clemensbartz.android.launcher.models.HomeModel;
  * @since 1.5
  * @author Clemens Bartz
  */
-public class LoadMostUsedAppsAsyncTask extends AsyncTask<ApplicationModel, DockUpdateModel, Integer> {
+public final class LoadMostUsedAppsAsyncTask extends AsyncTask<ApplicationModel, DockUpdateModel, Integer> {
     /** Weak reference to {@link Launcher}. */
     private final WeakReference<Launcher> launcherWeakReference;
     /** Weak reference to {@link HomeModel}. */

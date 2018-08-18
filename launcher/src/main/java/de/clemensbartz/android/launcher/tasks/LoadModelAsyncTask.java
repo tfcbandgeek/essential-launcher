@@ -30,7 +30,7 @@ import de.clemensbartz.android.launcher.models.HomeModel;
  * @author Clemens Bartz
  * @since 1.5
  */
-public class LoadModelAsyncTask extends AsyncTask<Integer, Integer, Pair<Integer, Integer>> {
+public final class LoadModelAsyncTask extends AsyncTask<Integer, Integer, Pair<Integer, Integer>> {
 
     /** Weak reference to {@link Launcher}. */
     private final WeakReference<Launcher> launcherWeakReference;
