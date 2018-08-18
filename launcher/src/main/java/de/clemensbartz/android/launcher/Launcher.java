@@ -389,7 +389,8 @@ public final class Launcher extends Activity {
             // Ask for permission
             widgetConfigure = configure;
 
-            final Intent intent = IntentUtil.createWidgetConfigureIntent(configure, appWidgetId);
+            final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider);
             // This is the options bundle discussed above
             //intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);
