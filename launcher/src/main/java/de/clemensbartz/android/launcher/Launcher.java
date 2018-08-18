@@ -40,7 +40,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.StrictMode;
-import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.MenuItem;
