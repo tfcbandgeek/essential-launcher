@@ -44,7 +44,6 @@ public class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Integer, L
 
     /** The weak reference to our activity where the widget list should be shown. */
     private final WeakReference<Launcher> launcherWeakReference;
-
     /** The weak reference to the app widget manager. */
     private final WeakReference<AppWidgetManager> appWidgetManagerWeakReference;
 
