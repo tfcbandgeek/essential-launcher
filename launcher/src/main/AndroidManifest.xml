@@ -26,6 +26,9 @@
     <uses-feature android:name="android.hardware.ram.low" android:required="false" />
     <uses-feature android:name="android.hardware.ram.normal" android:required="false" />
 
+    <uses-permission android:name="android.permission.BIND_APPWIDGET"
+        tools:ignore="ProtectedPermissions" />
+
     <application android:label="@string/app_name"
                  android:icon="@drawable/ic_launcher"
                  android:allowBackup="false"
