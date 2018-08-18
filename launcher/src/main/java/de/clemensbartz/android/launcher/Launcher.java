@@ -616,8 +616,15 @@ public final class Launcher extends Activity {
         topLayout.height = (int) Math.round(preciseTopHeight);
         vTopFiller.requestLayout();
 
+        if (frWidget.getChildCount() == 1) {
+            final View child = frWidget.getChildAt(0);
 
+            if (child instanceof AppWidgetHostView) {
+                final AppWidgetHostView hostView = (AppWidgetHostView) child;
 
+                hostView.updateAppWidgetSize(null, hostView.getMinimumWidth(), hostView.getMinimumHeight(), hostView.getWidth(), hostView.getHeight());
+            }
+        }
     }
 
     /**
@@ -634,6 +641,9 @@ public final class Launcher extends Activity {
                 hostView.setAppWidget(appWidgetId, appWidgetInfo);
 
                 frWidget.addView(hostView);
+                frWidget.requestLayout();
+
+                hostView.updateAppWidgetSize(null, hostView.getMinimumWidth(), hostView.getMinimumHeight(), hostView.getWidth(), hostView.getHeight());
             } else {
                 model.setAppWidgetId(-1);
             }
