@@ -132,17 +132,17 @@ public final class Launcher extends Activity {
     private static final int WIDGET_LAYOUT_BOTTOM_QUARTER = 30;
 
     /** The launcher drawable. */
-    public Drawable ic_launcher;
+    private Drawable icLauncher;
     /** The view switcher of the launcher. */
     private ViewSwitcher vsLauncher;
     /** The view for holding the widget. */
     private FrameLayout frWidget;
     /** The view for holding the widget filler for top. */
-    public View vTopFiller;
+    private View vTopFiller;
     /** The view for holding the widget filler for bottom. */
     private View vBottomFiller;
     /** The views for launching the most used apps. */
-    public final List<ImageView> dockImageViews = new ArrayList<>(HomeModel.NUMBER_OF_APPS);
+    private final List<ImageView> dockImageViews = new ArrayList<>(HomeModel.NUMBER_OF_APPS);
 
     /** The model for home. */
     private HomeModel model;
@@ -155,7 +155,7 @@ public final class Launcher extends Activity {
     /** The asynchronous task for updating the list view. */
     private UpdateAsyncTask updateAsyncTask;
     /** The list of installed applications. */
-    public final List<ApplicationModel> applicationModels = new ArrayList<>(0);
+    private final List<ApplicationModel> applicationModels = new ArrayList<>(0);
     /** The broadcast receiver for package changes. */
     private final BroadcastReceiver packageChangedBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -224,7 +224,7 @@ public final class Launcher extends Activity {
         vTopFiller = findViewById(R.id.topFiller);
         vBottomFiller = findViewById(R.id.bottomFiller);
 
-        ic_launcher = getDrawable(R.drawable.ic_launcher);
+        icLauncher = getDrawable(R.drawable.ic_launcher);
 
         final GridView lvApplications = findViewById(R.id.lvApplications);
         final ImageView ivDrawer = findViewById(R.id.ivDrawer);
@@ -679,7 +679,7 @@ public final class Launcher extends Activity {
         if (applicationModel == null) {
             if (imageView.getTag() != null) {
                 imageView.setTag(null);
-                imageView.setImageDrawable(ic_launcher);
+                imageView.setImageDrawable(icLauncher);
                 imageView.setOnClickListener(null);
                 imageView.setContentDescription(null);
             }
@@ -718,6 +718,38 @@ public final class Launcher extends Activity {
      */
     public DrawerListAdapter getListViewApplicationsAdapter() {
         return lvApplicationsAdapter;
+    }
+
+    /**
+     *
+     * @return the top filler view
+     */
+    public View getTopFiller() {
+        return vTopFiller;
+    }
+
+    /**
+     *
+     * @return the dock image views
+     */
+    public List<ImageView> getDockImageViews() {
+        return dockImageViews;
+    }
+
+    /**
+     *
+     * @return the application models list
+     */
+    public List<ApplicationModel> getApplicationModels() {
+        return applicationModels;
+    }
+
+    /**
+     *
+     * @return the launcher drawable
+     */
+    public Drawable getIcLauncher() {
+        return icLauncher;
     }
 
     /**

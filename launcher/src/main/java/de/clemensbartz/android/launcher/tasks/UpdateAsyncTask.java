@@ -103,14 +103,14 @@ public final class UpdateAsyncTask extends AsyncTask<Integer, Integer, Integer> 
 
                 // Check for when icon can become null (e. g. on Huawei Nexus 6p angler).
                 if (applicationModel.icon == null) {
-                    applicationModel.icon = launcher.ic_launcher;
+                    applicationModel.icon = launcher.getIcLauncher();
                 }
 
-                launcher.applicationModels.add(applicationModel);
+                launcher.getApplicationModels().add(applicationModel);
             }
 
             // Sort
-            Collections.sort(launcher.applicationModels, new Comparator<ApplicationModel>() {
+            Collections.sort(launcher.getApplicationModels(), new Comparator<ApplicationModel>() {
                 @Override
                 public int compare(final ApplicationModel o1, final ApplicationModel o2) {
                     return Collator.getInstance().compare(o1.label, o2.label);
@@ -135,7 +135,7 @@ public final class UpdateAsyncTask extends AsyncTask<Integer, Integer, Integer> 
         final Launcher launcher = launcherWeakReference.get();
 
         if (launcher != null) {
-            launcher.applicationModels.clear();
+            launcher.getApplicationModels().clear();
             launcher.getListViewApplicationsAdapter().notifyDataSetChanged();
         }
     }

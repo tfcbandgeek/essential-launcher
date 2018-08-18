@@ -112,7 +112,7 @@ public final class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Inte
         final Launcher launcher = launcherWeakReference.get();
 
         if (appWidgetProviderInfos != null && launcher != null && appWidgetProviderInfos.size() > 0) {
-            final PopupMenu popupMenu = new PopupMenu(launcher, launcher.vTopFiller);
+            final PopupMenu popupMenu = new PopupMenu(launcher, launcher.getTopFiller());
 
             for (ShowWidgetListAsPopupMenuTask.FilledAppWidgetProviderInfo info : appWidgetProviderInfos) {
                 final MenuItem menuItem = popupMenu.getMenu().add(info.getLabel());
@@ -144,6 +144,7 @@ public final class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Inte
     /**
      * Holds filled AppWidgetProviderInfo.
      */
+    @SuppressWarnings("WeakerAccess")
     public final class FilledAppWidgetProviderInfo {
         /** The label for the provider. */
         private String label;

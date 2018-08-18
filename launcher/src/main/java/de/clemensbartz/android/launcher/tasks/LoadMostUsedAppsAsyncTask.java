@@ -64,11 +64,11 @@ public final class LoadMostUsedAppsAsyncTask extends AsyncTask<ApplicationModel,
 
             final List<ApplicationModel> mostUsedApplications = model.getMostUsedApplications();
 
-            for (int i = 0; i < launcher.dockImageViews.size(); i++) {
+            for (int i = 0; i < launcher.getDockImageViews().size(); i++) {
                 if (i >= mostUsedApplications.size()) {
-                    publishProgress(new DockUpdateModel(launcher.dockImageViews.get(i), null));
+                    publishProgress(new DockUpdateModel(launcher.getDockImageViews().get(i), null));
                 } else {
-                    publishProgress(new DockUpdateModel(launcher.dockImageViews.get(i), mostUsedApplications.get(i)));
+                    publishProgress(new DockUpdateModel(launcher.getDockImageViews().get(i), mostUsedApplications.get(i)));
                 }
             }
         }

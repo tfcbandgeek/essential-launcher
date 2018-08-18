@@ -168,7 +168,7 @@ public final class HomeModel {
         preferences = context.getPreferences(Context.MODE_PRIVATE);
         dbHelper = ApplicationUsageDbHelper.getInstance(context);
         pm = context.getApplicationContext().getPackageManager();
-        icLauncher = context.ic_launcher;
+        icLauncher = context.getIcLauncher();
     }
 
     /**
