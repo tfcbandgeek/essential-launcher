@@ -77,6 +77,22 @@ public final class IntentUtil {
     }
 
     /**
+     * Create an intent for calling the AppWidgetManager.ACTION_APPWIDGET_BIND activity.
+     * @param provider the component name of the provider
+     * @param appWidgetId the app widget id
+     * @return the intent
+     */
+    public static Intent createWidgetBindIntent(final ComponentName provider, final Integer appWidgetId) {
+        final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider);
+        // This is the options bundle discussed above
+        //intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);
+
+        return intent;
+    }
+
+    /**
      * Check if an intent is callable.
      * @param intent the intent
      * @param pm the package manager to check against
