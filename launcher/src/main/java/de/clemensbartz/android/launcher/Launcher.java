@@ -38,7 +38,6 @@ import android.graphics.drawable.RippleDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.os.StrictMode;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -62,6 +61,7 @@ import de.clemensbartz.android.launcher.adapters.DrawerListAdapter;
 import de.clemensbartz.android.launcher.models.ApplicationModel;
 import de.clemensbartz.android.launcher.models.DockUpdateModel;
 import de.clemensbartz.android.launcher.models.HomeModel;
+import de.clemensbartz.android.launcher.tasks.ShowWidgetListAsPopupMenuTask;
 import de.clemensbartz.android.launcher.util.IntentUtil;
 
 /**
@@ -89,10 +89,14 @@ public final class Launcher extends Activity {
     /** Id to identify the launcher layout. */
     private static final int DRAWER_ID = 1;
 
-    /** Request code for picking a widget. */
-    private static final int REQUEST_PICK_APPWIDGET = 0;
+    /** Request code for binding widget. */
+    private static final int REQUEST_BIND_APPWIDGET = 0;
     /** Request code for creating a widget. */
     private static final int REQUEST_CREATE_APPWIDGET = 1;
+
+    /** Extra code for APP_WIGDET_CONFIGURE. */
+    private static final String EXTRA_APP_WIDGET_CONFIGURE = "EL_APP_WIDGET_CONFIGURE";
+
     /** Request code for app info. */
     private static final int ITEM_APPINFO = 1;
     /** Request code for app uninstall. */
@@ -135,7 +139,7 @@ public final class Launcher extends Activity {
     /** The view for holding the widget. */
     private FrameLayout frWidget;
     /** The view for holding the widget filler for top. */
-    private View vTopFiller;
+    public View vTopFiller;
     /** The view for holding the widget filler for bottom. */
     private View vBottomFiller;
     /** The views for launching the most used apps. */
@@ -162,6 +166,8 @@ public final class Launcher extends Activity {
     };
     /** The temporary application model for context menus. */
     private ApplicationModel contextMenuApplicationModel;
+    /** The temporary configure component for widgets. */
+    private ComponentName widgetConfigure;
 
     /**
      * Adjust StrictMode based on environment parameters.
@@ -324,32 +330,72 @@ public final class Launcher extends Activity {
             final Intent data) {
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_PICK_APPWIDGET) {
-                final Bundle extras = data.getExtras();
+            final Integer appWidgetId = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
 
-                if (extras != null) {
-                    final int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-                    final AppWidgetProviderInfo appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId);
-
-                    if (appWidgetInfo.configure != null) {
-                        final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
-                        intent.setComponent(appWidgetInfo.configure);
-                        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-
-                        // Thank you to Google Keep for ruining the show: java.lang.SecurityException: Permission Denial: starting Intent [...] not exported from uid
-                        final List<ResolveInfo> rs = getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-                        if (rs.size() == 1) {
-                            if (rs.get(0).activityInfo.exported) {
-                                startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
-                            }
-                        }
-                    } else {
-                        createWidget(data);
-                    }
+            if (requestCode == REQUEST_CREATE_APPWIDGET) {
+                createWidget(appWidgetId);
+            } else if (requestCode == REQUEST_BIND_APPWIDGET) {
+                if (widgetConfigure != null) {
+                    configureWidget(appWidgetId, widgetConfigure);
+                } else {
+                    createWidget(appWidgetId);
                 }
-            } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
-                createWidget(data);
             }
+        }
+
+        widgetConfigure = null;
+    }
+
+    /**
+     * Configure a widget for a provider
+     * @param appWidgetId the appWidgetId
+     * @param configure the configure component
+     */
+    private void configureWidget(final Integer appWidgetId, final ComponentName configure) {
+        // Abort on invalid input
+        if (appWidgetId == -1) {
+            return;
+        }
+
+        if (configure != null) {
+            final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
+            intent.setComponent(configure);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            intent.putExtra(EXTRA_APP_WIDGET_CONFIGURE, configure);
+
+            if (IntentUtil.isCallable(getPackageManager(), intent)) {
+                startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
+            }
+        } else {
+            // Configuring not necessary, go strait to creation
+            createWidget(appWidgetId);
+        }
+
+        // Reset widget configure
+        widgetConfigure = null;
+    }
+
+    /**
+     * Bind a widget for a provider
+     * @param provider the provider component
+     * @param configure the configure component
+     */
+    public void bindWidget(final ComponentName provider, final ComponentName configure) {
+        final int appWidgetId = appWidgetHost.allocateAppWidgetId();
+
+        if (appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)) {
+            // Binding is allowed, go straight to configuring
+            configureWidget(appWidgetId, configure);
+        } else {
+            // Ask for permission
+            widgetConfigure = configure;
+
+            final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider);
+            // This is the options bundle discussed above
+            //intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);
+            startActivityForResult(intent, REQUEST_BIND_APPWIDGET);
         }
     }
 
@@ -381,21 +427,11 @@ public final class Launcher extends Activity {
                     model.setKeyAppwidgetLayout(WIDGET_LAYOUT_FULL_SCREEN);
                     adjustWidget(WIDGET_LAYOUT_FULL_SCREEN);
                     // Remove widget
-                    createWidget(new Intent());
+                    createWidget(-1);
                     break;
                 case ITEM_CHOOSE_WIDGET:
-                    final int appWidgetId = appWidgetHost.allocateAppWidgetId();
-
-                    final Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
-                    pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-                    pickIntent.putExtra(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, frWidget.getHeight());
-                    pickIntent.putExtra(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, frWidget.getWidth());
-                    pickIntent.putExtra(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
-                    pickIntent.putParcelableArrayListExtra(AppWidgetManager.EXTRA_CUSTOM_EXTRAS, new ArrayList<Parcelable>(0));
-                    pickIntent.putParcelableArrayListExtra(AppWidgetManager.EXTRA_CUSTOM_INFO, new ArrayList<Parcelable>(0));
-
-                    startActivityForResult(pickIntent, REQUEST_PICK_APPWIDGET);
-
+                    final ShowWidgetListAsPopupMenuTask showWidgetListAsPopupMenuTask = new ShowWidgetListAsPopupMenuTask(this, appWidgetManager);
+                    showWidgetListAsPopupMenuTask.execute();
                     break;
                 case ITEM_LAYOUT_WIDGET:
                     final PopupMenu popupMenu = new PopupMenu(this, vTopFiller);
@@ -461,17 +497,7 @@ public final class Launcher extends Activity {
         final Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.setComponent(component);
 
-        boolean canBeLaunched = false;
-
-        final List<ResolveInfo> rs = getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        for (ResolveInfo resolveInfo : rs) {
-            if (resolveInfo.activityInfo.exported) {
-                canBeLaunched = true;
-                break;
-            }
-        }
-
-        if (canBeLaunched) {
+        if (IntentUtil.isCallable(getPackageManager(), intent)) {
             startActivity(intent);
             new LoadMostUsedAppsAsyncTask().execute(applicationModel);
         }
@@ -511,20 +537,12 @@ public final class Launcher extends Activity {
 
     /**
      * Create a widget from an intent.
-     * @param intent the intent
+     * @param appWidgetId the appWidgetId
      */
-    private void createWidget(final Intent intent) {
+    private void createWidget(final Integer appWidgetId) {
         if (model.getAppWidgetId() > -1) {
             appWidgetHost.deleteAppWidgetId(model.getAppWidgetId());
             frWidget.removeAllViews();
-        }
-
-        final Bundle extras = intent.getExtras();
-
-        int appWidgetId = -1;
-
-        if (extras != null) {
-            appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
         }
 
         model.setAppWidgetId(appWidgetId);

@@ -17,8 +17,14 @@
 
 package de.clemensbartz.android.launcher.util;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
+
+import java.util.List;
 
 /**
  * Utility class for constructing intents.
@@ -55,5 +61,51 @@ public final class IntentUtil {
         Intent intent = new Intent(Intent.ACTION_DELETE);
         intent.setData(Uri.parse("package:" + packageName));
         return intent;
+    }
+
+    /**
+     * Create an intent for calling the ACTION_APPWIDGET_CONFIGURE activity.
+     * @param componentName the component
+     * @return the intent
+     */
+    public static Intent createWidgetConfigureIntent(final ComponentName componentName) {
+        final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
+
+        intent.setComponent(componentName);
+
+        return intent;
+    }
+
+    /**
+     * Create an intent for calling the ACTION_APPWIDGET_CONFIGURE activity for a specific
+     * appWidgetId
+     * @param componentName the component
+     * @param appWidgetId the appWidgetId
+     * @return the intent
+     */
+    public static Intent createWidgetConfigureIntent(final ComponentName componentName, final Integer appWidgetId) {
+        final Intent intent = createWidgetConfigureIntent(componentName);
+
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+
+        return intent;
+    }
+
+    /**
+     * Check if an intent is callable.
+     * @param intent the intent
+     * @return if it is callable.
+     */
+    public static boolean isCallable(final PackageManager pm, final Intent intent) {
+        // Thank you to Google Keep for ruining the show: java.lang.SecurityException: Permission Denial: starting Intent [...] not exported from uid
+        final List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+
+        for (ResolveInfo resolveInfo : resolveInfos) {
+            if (resolveInfo.activityInfo.exported) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
