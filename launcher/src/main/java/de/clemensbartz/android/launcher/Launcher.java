@@ -290,17 +290,7 @@ public final class Launcher extends Activity {
         model = HomeModel.getInstance(this);
 
         // Listen for changes
-        final IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        filter.addAction(Intent.ACTION_INSTALL_PACKAGE);
-        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        filter.addAction(Intent.ACTION_LOCALE_CHANGED);
-        filter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
-        filter.addDataScheme("package");
-
-        registerReceiver(packageChangedBroadcastReceiver, filter);
+        registerReceiver(packageChangedBroadcastReceiver, IntentUtil.createdChangeBroadReceiverFilter());
 
         // Go
         new LoadModelAsyncTask(this, model).execute();

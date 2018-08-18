@@ -20,6 +20,7 @@ package de.clemensbartz.android.launcher.util;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -90,6 +91,25 @@ public final class IntentUtil {
         //intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);
 
         return intent;
+    }
+
+    /**
+     *
+     * @return the filter for the changed broadcast receiver
+     */
+    public static IntentFilter createdChangeBroadReceiverFilter() {
+        final IntentFilter filter = new IntentFilter();
+
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_INSTALL_PACKAGE);
+        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        filter.addAction(Intent.ACTION_LOCALE_CHANGED);
+        filter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        filter.addDataScheme("package");
+
+        return filter;
     }
 
     /**
