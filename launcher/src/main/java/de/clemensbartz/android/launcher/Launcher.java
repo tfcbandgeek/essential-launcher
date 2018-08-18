@@ -186,7 +186,7 @@ public final class Launcher extends Activity {
 
     /**
      * Adjust the theme.
-     * </br>
+     * <br>
      * This function is necessary, because API 21-25 do not
      * support theme inheritance in emulators (and I assume in real
      * devices as well.
@@ -346,7 +346,7 @@ public final class Launcher extends Activity {
     }
 
     /**
-     * Configure a widget for a provider
+     * Configure a widget for a provider.
      * @param appWidgetId the appWidgetId
      * @param configure the configure component
      */
@@ -375,7 +375,7 @@ public final class Launcher extends Activity {
     }
 
     /**
-     * Bind a widget for a provider
+     * Bind a widget for a provider.
      * @param provider the provider component
      * @param configure the configure component
      */
@@ -465,6 +465,13 @@ public final class Launcher extends Activity {
         return false;
     }
 
+    /**
+     * Add a menu item for the layout popup menu.
+     * @param popupMenu the popup menu
+     * @param widgetLayout the layout for the item
+     * @param currentLayout the currently active item
+     * @param resourceId the resource for the string
+     */
     private void addLayoutPopupMenuItem(final PopupMenu popupMenu, final int widgetLayout, final int currentLayout, final int resourceId) {
         final MenuItem menuItem = popupMenu.getMenu().add(0, widgetLayout, 0, resourceId);
         menuItem.setCheckable(true);

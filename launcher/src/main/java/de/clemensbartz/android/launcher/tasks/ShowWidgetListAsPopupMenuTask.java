@@ -51,6 +51,7 @@ public class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Integer, L
      * Create a new widget list task. When the listing is done, show the popup menu in
      * the activity.
      * @param activity the activity to show the popup menu
+     * @param appWidgetManager the app widget manager
      */
     public ShowWidgetListAsPopupMenuTask(
             final Launcher activity,
