@@ -39,7 +39,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -59,10 +58,13 @@ import java.util.List;
 
 import de.clemensbartz.android.launcher.adapters.DrawerListAdapter;
 import de.clemensbartz.android.launcher.models.ApplicationModel;
-import de.clemensbartz.android.launcher.models.DockUpdateModel;
 import de.clemensbartz.android.launcher.models.HomeModel;
 import de.clemensbartz.android.launcher.tasks.LoadModelAsyncTask;
+import de.clemensbartz.android.launcher.tasks.LoadMostUsedAppsAsyncTask;
+import de.clemensbartz.android.launcher.tasks.ResetUsageAsyncTask;
 import de.clemensbartz.android.launcher.tasks.ShowWidgetListAsPopupMenuTask;
+import de.clemensbartz.android.launcher.tasks.ToggleDockAsyncTask;
+import de.clemensbartz.android.launcher.tasks.ToggleStickyAsyncTask;
 import de.clemensbartz.android.launcher.util.IntentUtil;
 
 /**
@@ -86,7 +88,7 @@ public final class Launcher extends Activity {
     private static final int DOCK_HEIGHT = 60;
 
     /** Id to identify the home layout. */
-    private static final int HOME_ID = 0;
+    public static final int HOME_ID = 0;
     /** Id to identify the launcher layout. */
     private static final int DRAWER_ID = 1;
 
@@ -144,7 +146,7 @@ public final class Launcher extends Activity {
     /** The view for holding the widget filler for bottom. */
     private View vBottomFiller;
     /** The views for launching the most used apps. */
-    private final List<ImageView> dockImageViews = new ArrayList<>(HomeModel.NUMBER_OF_APPS);
+    public final List<ImageView> dockImageViews = new ArrayList<>(HomeModel.NUMBER_OF_APPS);
 
     /** The model for home. */
     private HomeModel model;
@@ -405,13 +407,13 @@ public final class Launcher extends Activity {
         if (item.getIntent() == null && contextMenuApplicationModel != null) {
             switch (item.getItemId()) {
                 case ITEM_RESET:
-                    new ResetUsageAsyncTask().execute(contextMenuApplicationModel);
+                    new ResetUsageAsyncTask(this, model).execute(contextMenuApplicationModel);
                     break;
                 case ITEM_TOGGLE_DISABLED:
-                    new ToggleDockAsyncTask().execute(contextMenuApplicationModel);
+                    new ToggleDockAsyncTask(this, model).execute(contextMenuApplicationModel);
                     break;
                 case ITEM_TOGGLE_STICKY:
-                    new ToggleStickyAsyncTask().execute(contextMenuApplicationModel);
+                    new ToggleStickyAsyncTask(this, model).execute(contextMenuApplicationModel);
                     break;
                 default:
                     break;
@@ -500,7 +502,7 @@ public final class Launcher extends Activity {
 
         if (IntentUtil.isCallable(getPackageManager(), intent)) {
             startActivity(intent);
-            new LoadMostUsedAppsAsyncTask().execute(applicationModel);
+            new LoadMostUsedAppsAsyncTask(this, model).execute(applicationModel);
         }
     }
 
@@ -509,7 +511,7 @@ public final class Launcher extends Activity {
      *
      * @param id the id of the layout
      */
-    private void switchTo(final int id) {
+    public void switchTo(final int id) {
         switch (vsLauncher.getDisplayedChild()) {
             case HOME_ID:
                 if (id == DRAWER_ID) {
@@ -652,7 +654,7 @@ public final class Launcher extends Activity {
      * Update dock.
      */
     private void updateDock() {
-        new LoadMostUsedAppsAsyncTask().execute();
+        new LoadMostUsedAppsAsyncTask(this, model).execute();
     }
 
     /**
@@ -670,7 +672,7 @@ public final class Launcher extends Activity {
      * @param imageView the view
      * @param applicationModel the model, can be <code>null</code>
      */
-    private void updateDock(final ImageView imageView, final ApplicationModel applicationModel) {
+    public void updateDock(final ImageView imageView, final ApplicationModel applicationModel) {
         if (applicationModel == null) {
             if (imageView.getTag() != null) {
                 imageView.setTag(null);
@@ -795,100 +797,6 @@ public final class Launcher extends Activity {
         @Override
         public void onClick(final View view) {
             switchTo(DRAWER_ID);
-        }
-    }
-
-    /**
-     * Toggle sticky visibility for an application.
-     */
-    private class ToggleStickyAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
-        @Override
-        protected Integer doInBackground(final ApplicationModel... applicationModels) {
-            for (ApplicationModel applicationModel : applicationModels) {
-                model.toggleSticky(applicationModel.packageName, applicationModel.className);
-            }
-
-            return 0;
-        }
-
-        @Override
-        protected void onPostExecute(final Integer result) {
-            new LoadMostUsedAppsAsyncTask().execute();
-            switchTo(HOME_ID);
-        }
-    }
-
-    /**
-     * Toggle dock visibility for an application.
-     */
-    private class ToggleDockAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
-        @Override
-        protected Integer doInBackground(final ApplicationModel... applicationModels) {
-            for (ApplicationModel applicationModel : applicationModels) {
-                model.toggleDisabled(applicationModel.packageName, applicationModel.className);
-            }
-
-            return 0;
-        }
-
-        @Override
-        protected void onPostExecute(final Integer result) {
-            new LoadMostUsedAppsAsyncTask().execute();
-            switchTo(HOME_ID);
-        }
-    }
-
-    /**
-     * Async for resetting the database.
-     */
-    private class ResetUsageAsyncTask extends AsyncTask<ApplicationModel, Integer, Integer> {
-        @Override
-        protected Integer doInBackground(final ApplicationModel... applicationModels) {
-            for (ApplicationModel applicationModel : applicationModels) {
-                model.resetUsage(applicationModel.packageName, applicationModel.className);
-            }
-
-            return 0;
-        }
-
-        @Override
-        protected void onPostExecute(final Integer result) {
-            new LoadMostUsedAppsAsyncTask().execute();
-        }
-    }
-
-    /**
-     * Async task for loading the most used applications.
-     */
-    private class LoadMostUsedAppsAsyncTask extends AsyncTask<ApplicationModel, DockUpdateModel, Integer> {
-        @Override
-        protected Integer doInBackground(final ApplicationModel... applicationModels) {
-            for (ApplicationModel applicationModel : applicationModels) {
-                model.addUsage(applicationModel.packageName, applicationModel.className);
-            }
-
-            if (applicationModels.length == 0) {
-                model.updateApplications();
-            }
-
-            final List<ApplicationModel> mostUsedApplications = model.getMostUsedApplications();
-
-            for (int i = 0; i < dockImageViews.size(); i++) {
-                if (i >= mostUsedApplications.size()) {
-                    publishProgress(new DockUpdateModel(dockImageViews.get(i), null));
-                } else {
-                    publishProgress(new DockUpdateModel(dockImageViews.get(i), mostUsedApplications.get(i)));
-                }
-            }
-
-            return 0;
-        }
-
-        @Override
-        protected void onProgressUpdate(final DockUpdateModel... values) {
-            for (DockUpdateModel dockUpdateModel : values) {
-                updateDock(dockUpdateModel.getImageView(), dockUpdateModel.getApplicationModel());
-            }
         }
     }
 
