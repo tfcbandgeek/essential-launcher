@@ -23,6 +23,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.view.MenuItem;
 import android.widget.PopupMenu;
 
@@ -89,7 +90,11 @@ public final class ShowWidgetListAsPopupMenuTask extends AsyncTask<Integer, Inte
 
             // Fill info
             final FilledAppWidgetProviderInfo info = new FilledAppWidgetProviderInfo();
-            info.setLabel(appWidgetProviderInfo.loadLabel(pm));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                info.setLabel(appWidgetProviderInfo.loadLabel(pm));
+            } else {
+                info.setLabel(appWidgetProviderInfo.label);
+            }
             info.setProvider(appWidgetProviderInfo.provider);
             info.setConfigure(appWidgetProviderInfo.configure);
 

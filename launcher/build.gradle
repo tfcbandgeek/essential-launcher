@@ -23,7 +23,7 @@ android {
 
     defaultConfig {
         applicationId "de.clemensbartz.android.launcher"
-        minSdkVersion 21
+        minSdkVersion 17
         targetSdkVersion 28
         maxSdkVersion 28
         versionCode 12

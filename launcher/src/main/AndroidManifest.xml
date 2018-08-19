@@ -36,7 +36,8 @@
                  tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="de.clemensbartz.android.launcher.Launcher"
                   android:label="@string/app_name"
-                  android:launchMode="singleInstance"
+                  android:launchMode="singleTask"
+                  android:clearTaskOnLaunch="true"
                   android:stateNotNeeded="true"
                   android:theme="@style/API28ActivityStyle"
                   android:visibleToInstantApps="false"

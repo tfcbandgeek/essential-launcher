@@ -17,5 +17,8 @@
   -->
 
 <resources>
-    <style name="API17ActivityStyle" parent="android:Theme.Holo.Wallpaper.NoTitleBar" />
+    <style name="API21ActivityStyle" parent="@android:style/Theme.DeviceDefault.Wallpaper.NoTitleBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
 </resources>

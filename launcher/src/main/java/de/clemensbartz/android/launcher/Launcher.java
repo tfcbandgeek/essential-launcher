@@ -184,7 +184,11 @@ public final class Launcher extends Activity {
         vTopFiller = findViewById(R.id.topFiller);
         vBottomFiller = findViewById(R.id.bottomFiller);
 
-        icLauncher = getDrawable(R.drawable.ic_launcher);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            icLauncher = getDrawable(R.drawable.ic_launcher);
+        } else {
+            icLauncher = getResources().getDrawable(R.drawable.ic_launcher);
+        }
 
         final GridView lvApplications = findViewById(R.id.lvApplications);
         final ImageView ivDrawer = findViewById(R.id.ivDrawer);
@@ -227,8 +231,10 @@ public final class Launcher extends Activity {
          * Initialize data.
          */
         // Animate the image of the drawer button.
-        final RippleDrawable rd = new RippleDrawable(ColorStateList.valueOf(Color.GRAY), ivDrawer.getDrawable(), null);
-        ivDrawer.setImageDrawable(rd);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            final Drawable rd = new RippleDrawable(ColorStateList.valueOf(Color.GRAY), ivDrawer.getDrawable(), null);
+            ivDrawer.setImageDrawable(rd);
+        }
 
         // Initialize widget handling.
         if (hasAppWidgets(this)) {
@@ -439,6 +445,12 @@ public final class Launcher extends Activity {
      */
     private void setTheme() {
         switch (Build.VERSION.SDK_INT) {
+            case Build.VERSION_CODES.JELLY_BEAN_MR1:
+            case Build.VERSION_CODES.JELLY_BEAN_MR2:
+            case Build.VERSION_CODES.KITKAT:
+            case Build.VERSION_CODES.KITKAT_WATCH:
+                setTheme(R.style.API17ActivityStyle);
+                break;
             case Build.VERSION_CODES.LOLLIPOP:
             case Build.VERSION_CODES.LOLLIPOP_MR1:
             case Build.VERSION_CODES.M:
@@ -498,6 +510,16 @@ public final class Launcher extends Activity {
             widgetConfigure = configure;
 
             final Intent intent = IntentUtil.createWidgetBindIntent(provider, appWidgetId);
+
+            final Bundle options = new Bundle();
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, frWidget.getMinimumWidth());
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, frWidget.getWidth());
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, frWidget.getMinimumHeight());
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, frWidget.getHeight());
+
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);
+
             startActivityForResult(intent, REQUEST_BIND_APPWIDGET);
         }
     }
@@ -559,7 +581,8 @@ public final class Launcher extends Activity {
      */
     private boolean hasAppWidgets(final Context context) {
         final PackageManager pm = context.getPackageManager();
-        return pm.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS);
+
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 || pm.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS);
     }
 
     /**
@@ -731,7 +754,10 @@ public final class Launcher extends Activity {
                 }
             }
 
-            final RippleDrawable rd = new RippleDrawable(ColorStateList.valueOf(Color.GRAY), applicationModel.icon, null);
+            Drawable rd = applicationModel.icon;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                rd = new RippleDrawable(ColorStateList.valueOf(Color.GRAY), applicationModel.icon, null);
+            }
             imageView.setImageDrawable(rd);
             imageView.setTag(applicationModel);
             imageView.setOnClickListener(new View.OnClickListener() {
