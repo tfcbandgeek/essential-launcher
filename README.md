@@ -1,9 +1,9 @@
 # Essential Launcher
 
-[![Build Status](https://travis-ci.org/clemensbartz/essential-launcher.svg?branch=release%2Fv1.5)](https://travis-ci.org/clemensbartz/essential-launcher)
+[![Build Status](https://travis-ci.org/clemensbartz/essential-launcher.svg?branch=release%2Fv1.6)](https://travis-ci.org/clemensbartz/essential-launcher)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1e17dc4e83d748a7bf35231ed7fa9528)](https://www.codacy.com/app/clemensbartz/essential-launcher?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=clemensbartz/essential-launcher&amp;utm_campaign=Badge_Grade)
-[![codebeat badge](https://codebeat.co/badges/9a92c9a8-728b-4c47-bbb2-1a45ed9e15b4)](https://codebeat.co/projects/github-com-clemensbartz-essential-launcher-release-v1-5)
-[![GitHub license](https://img.shields.io/github/license/clemensbartz/essential-launcher.svg)](https://github.com/clemensbartz/essential-launcher/blob/release/v1.5/LICENSE)
+[![codebeat badge](https://codebeat.co/badges/6d998bd2-b920-43be-b43f-7b09466e3874)](https://codebeat.co/projects/github-com-clemensbartz-essential-launcher-release-v1-6)
+[![GitHub license](https://img.shields.io/github/license/clemensbartz/essential-launcher.svg)](https://github.com/clemensbartz/essential-launcher/blob/release/v1.6/LICENSE)
 
 ## Overview
 
@@ -32,7 +32,7 @@ If you want to support development, please make sure:
 - You use Android Studio >= 3.1.4
 - You must not enable [minify](http://developer.android.com/tools/help/proguard.html)
 - You use SDK Version >= 28.
-- You specify minimum SDK Version as 21 (Android 5.0).
+- You specify minimum SDK Version as 17 (Android 4.2).
 - You specify maximum SDK Version as 28 (Android 9 Pie).
 - You use Java >= 8.
 - The APK in Android Studio _APK Analyzer_ must be smaller than 50 KB
