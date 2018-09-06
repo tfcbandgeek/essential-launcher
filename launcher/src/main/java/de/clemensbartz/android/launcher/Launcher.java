@@ -68,7 +68,7 @@ import de.clemensbartz.android.launcher.util.IntentUtil;
  * @author Clemens Bartz
  * @since 1.0
  */
-public final class Launcher extends Activity {
+public final class Launcher extends Activity implements View.OnClickListener {
 
     /** A quarter. */
     private static final double QUARTER = 0.25;
@@ -444,24 +444,10 @@ public final class Launcher extends Activity {
      * devices as well.
      */
     private void setTheme() {
-        switch (Build.VERSION.SDK_INT) {
-            case Build.VERSION_CODES.JELLY_BEAN_MR1:
-            case Build.VERSION_CODES.JELLY_BEAN_MR2:
-            case Build.VERSION_CODES.KITKAT:
-            case Build.VERSION_CODES.KITKAT_WATCH:
-                setTheme(R.style.API17ActivityStyle);
-                break;
-            case Build.VERSION_CODES.LOLLIPOP:
-            case Build.VERSION_CODES.LOLLIPOP_MR1:
-            case Build.VERSION_CODES.M:
-            case Build.VERSION_CODES.N:
-            case Build.VERSION_CODES.N_MR1:
-            case Build.VERSION_CODES.O:
-            case Build.VERSION_CODES.O_MR1:
-                setTheme(R.style.API21ActivityStyle);
-                break;
-            default:
-                // leave highest default
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            setTheme(R.style.API17ActivityStyle);
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1){
+            setTheme(R.style.API21ActivityStyle);
         }
     }
 
@@ -719,11 +705,14 @@ public final class Launcher extends Activity {
 
     /**
      * Handle click on dock image.
-     * @param imageView the image view that was clicked
+     * @param view the image view that was clicked
      */
-    private void onDockClick(final ImageView imageView) {
-        if (imageView.getTag() instanceof ApplicationModel) {
-            openApp((ApplicationModel) imageView.getTag());
+    @Override
+    public void onClick(final View view) {
+        if (view instanceof ImageView) {
+            if (view.getTag() instanceof ApplicationModel) {
+                openApp((ApplicationModel) view.getTag());
+            }
         }
     }
 
@@ -760,14 +749,7 @@ public final class Launcher extends Activity {
             }
             imageView.setImageDrawable(rd);
             imageView.setTag(applicationModel);
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View view) {
-                    if (view instanceof ImageView) {
-                        onDockClick((ImageView) view);
-                    }
-                }
-            });
+            imageView.setOnClickListener(this);
             imageView.setContentDescription(applicationModel.label);
         }
     }
